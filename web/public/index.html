@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProofRun</title>
+<meta name="description" content="An always-on sales operator that prospects overnight, rebuilds and tests websites, and learns from what you approve.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='9' fill='%235ad1a0'/></svg>">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark"><i></i> ProofRun</div>
+      <div class="sub">always-on sales operator</div>
+    </div>
+
+    <nav class="screens" id="nav">
+      <a href="#/brief">Morning Brief</a>
+      <a href="#/queue">Queue <span class="count" data-count="queue">0</span></a>
+      <a href="#/run">Live Run</a>
+      <a href="#/proof">Proof</a>
+      <a href="#/approve">Approve <span class="count" data-count="approve">0</span></a>
+      <a href="#/memory">Memory</a>
+    </nav>
+
+    <div class="foot">
+      <button class="primary" id="run-now">Run now</button>
+      <div class="small muted" id="mode-note">loading…</div>
+    </div>
+  </aside>
+
+  <main id="view">
+    <div class="empty"><div class="big">Loading ProofRun…</div></div>
+  </main>
+</div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

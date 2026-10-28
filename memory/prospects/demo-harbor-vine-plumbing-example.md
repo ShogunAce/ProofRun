@@ -5,7 +5,7 @@
 - **City:** San Diego, CA
 - **Niche:** plumbers
 - **First seen:** 2026-10-28
-- **Last updated:** 2026-10-28 23:01:06
+- **Last updated:** 2026-10-28 23:18:36
 - **Found via:** seeded demo fixture
 
 ## Scores
@@ -85,29 +85,32 @@ The site has strong trust signals (35+ years, family-owned, licensed, testimonia
 
 ## Latest draft
 
-**Subject:** Phone link not tappable
+**Subject:** Missed call on mobile
 
 ```
-Subject: Phone link not tappable
+Phone number not tappable on mobile — visitors can’t call with a tap.
 
-Hi,
+Every missed call costs you a job.
 
-Your phone number is not a tappable tel: link (F1). It also lacks a viewport meta tag (F2) and the contact button is too small for thumbs (F3).
-
-Every mobile visitor who wants to call hits a dead tap. That lost call can mean a missed emergency job, which costs you revenue.
-
-Check this - I rebuilt your page so you can look at it instead of imagining it: http://localhost:3000/mockup/demo-harbor-vine-plumbing-example
+Here is the rebuilt page - I rebuilt your page so you can look at it instead of imagining it: http://localhost:3000/mockup/demo-harbor-vine-plumbing-example
 
 That page is a concept mockup I made, not affiliated with Harbor & Vine Plumbing. It passed 11 of 13 automated checks, against 3 of 13 for the current page.
 
-Please look at the page I already built and reply yes or no.
+Look at the page and reply yes or no.
 
-Best,
+Thanks,
 
-Sam Reyes - 1234 Example St, Suite 100, San Diego, CA 92101
-You are receiving this one-off note because your business is listed publicly in San Diego, CA.
-Reply "unsubscribe" and I will remove you and never contact you again.
+Sam Reyes
+
+1234 Example St, Suite 100, San Diego, CA 92101
+
+You are receiving this one-off note because your business is listed publicly in San Diego, CA. Reply "unsubscribe" and I will remove you and never contact you again.
 ```
+
+## Operator edits
+
+### 2026-10-28 23:09:24 (rejected)
+Note: Never open with the word "Hi" or the business name. Open with the single measured defect, in the first six words. And never mention a score out of 100 anywhere in the email — business owners do not care about our number, they care about missed calls.
 
 ## History
 
@@ -119,3 +122,8 @@ Reply "unsubscribe" and I will remove you and never contact you again.
 - 2026-10-28 22:58:10 — audited: 8 findings, score 30
 - 2026-10-28 22:58:52 — verified: passed after 1 repair attempt(s)
 - 2026-10-28 23:01:06 — drafted: Phone link not tappable
+- 2026-10-28 23:09:24 — rejected: Never open with the word "Hi" or the business name. Open with the single measured defect, in the first six words. And never mention a score out of 100 anywhere in the email — business owners do not care about our number, they care about missed calls.
+- 2026-10-28 23:10:20 — redrafted: v2 with 1 learning(s) in memory
+- 2026-10-28 23:12:02 — redrafted: v3 with 1 learning(s) in memory
+- 2026-10-28 23:17:09 — redrafted: v4 with 1 learning(s) in memory
+- 2026-10-28 23:18:36 — redrafted: v5 with 1 learning(s) in memory

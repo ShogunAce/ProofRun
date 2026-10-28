@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-28",
+  "generated_at": "2026-10-28T23:07:44.580Z",
+  "stats": {
+    "date": "2026-10-28",
+    "total_prospects": 1,
+    "touched_today": 1,
+    "by_status": {
+      "drafted": 1
+    },
+    "awaiting_approval": 1,
+    "approved": 0,
+    "rejected": 0,
+    "failed_verification": 0,
+    "passed_verification": 1,
+    "repair_attempts_used": 1,
+    "median_delta": 67,
+    "learnings_total": 0
+  },
+  "prospects": [
+    {
+      "business": "Harbor & Vine Plumbing",
+      "status": "drafted",
+      "before": 30,
+      "after": 100,
+      "verification": "passed",
+      "repair_attempts": 1,
+      "still_failing": [],
+      "updated": "2026-10-28"
+    }
+  ],
+  "learnings": [],
+  "what_ran": "Ran 1 prospect today; status drafted; verification passed; repair attempts used 1; median delta 67.",
+  "needs_you": "Awaiting approval 1; approved 0; rejected 0; failed verification 0.",
+  "what_i_learned": "Learnings total 0; no new learnings recorded."
+}

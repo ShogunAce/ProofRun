@@ -591,6 +591,88 @@ async function execute(run) {
 }
 
 // --------------------------------------------------------------------------
+// Redraft: the memory read path, on its own
+// --------------------------------------------------------------------------
+
+/**
+ * Write a new draft for a prospect that has already been audited and verified,
+ * using whatever is in memory right now.
+ *
+ * This is the demonstrable claim: correct a draft, redraft, and the next one
+ * reflects the correction. It re-runs only the drafting step, so nothing about
+ * the audit or the proof changes between the two versions — the memory is the
+ * only variable.
+ */
+export async function redraft(prospectId) {
+  const p = store.loadProspect(prospectId);
+  if (!p) throw new Error(`Unknown prospect ${prospectId}`);
+  if (!p.audit) throw new Error(`${prospectId} has not been audited, so there is nothing to draft from.`);
+  if (p.verification?.outcome !== 'passed') {
+    throw new Error(`${prospectId} did not pass verification. ProofRun does not draft for a failed rebuild.`);
+  }
+
+  const learnings = store.learningRules();
+  const profile = store.readProfile();
+  const mockupUrl = `${env.publicBaseUrl}/mockup/${p.id}`;
+  const traces = [];
+
+  const proofNumbers = {
+    before_score: p.verification.comparison?.before ?? null,
+    after_score: p.verification.comparison?.after ?? null,
+    checks_passed: p.scores?.after?.passed ?? 0,
+    checks_total: p.scores?.after?.automated_total ?? 0,
+    baseline_passed: p.scores?.before?.passed ?? null,
+    fixed: p.verification.comparison?.fixed ?? [],
+    still_failing: p.verification.comparison?.still_failing ?? [],
+    verification_outcome: p.verification.outcome,
+  };
+
+  const { data: draft } = await completeStructured({
+    role: 'draft_email',
+    ...draftPrompt({
+      audit: p.audit,
+      context: p.context || {},
+      proof: proofNumbers,
+      mockupUrl,
+      learnings,
+      profile,
+      city: p.city,
+    }),
+    schema: draftZ, jsonSchema: draftJsonSchema, schemaName: 'outreach_draft',
+    onTrace: (t) => traces.push(t),
+  });
+
+  const previous = p.draft;
+  const next = store.upsertProspect(prospectId, {
+    status: 'drafted',
+    draft: {
+      ...draft,
+      mockup_url: mockupUrl,
+      drafted_at: new Date().toISOString(),
+      learnings_available: learnings.length,
+      version: (previous?.version || 1) + 1,
+    },
+    // Keep every earlier draft so the two can be read side by side.
+    draft_history: [
+      ...(p.draft_history || []),
+      ...(previous ? [{ ...previous, superseded_at: new Date().toISOString() }] : []),
+    ],
+  });
+  store.appendProspectHistory(prospectId, {
+    event: 'redrafted',
+    detail: `v${next.draft.version} with ${learnings.length} learning(s) in memory`,
+  });
+
+  return {
+    prospect: next,
+    draft: next.draft,
+    previous,
+    learnings,
+    traces,
+  };
+}
+
+// --------------------------------------------------------------------------
 // Approval: the memory write path
 // --------------------------------------------------------------------------
 

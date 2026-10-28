@@ -42,9 +42,43 @@
       "at": "2026-10-28T23:01:06.575Z",
       "event": "drafted",
       "detail": "Phone link not tappable"
+    },
+    {
+      "at": "2026-10-28T23:09:24.145Z",
+      "event": "rejected",
+      "detail": "Never open with the word \"Hi\" or the business name. Open with the single measured defect, in the first six words. And never mention a score out of 100 anywhere in the email — business owners do not care about our number, they care about missed calls."
+    },
+    {
+      "at": "2026-10-28T23:10:20.664Z",
+      "event": "redrafted",
+      "detail": "v2 with 1 learning(s) in memory"
+    },
+    {
+      "at": "2026-10-28T23:12:02.221Z",
+      "event": "redrafted",
+      "detail": "v3 with 1 learning(s) in memory"
+    },
+    {
+      "at": "2026-10-28T23:17:09.284Z",
+      "event": "redrafted",
+      "detail": "v4 with 1 learning(s) in memory"
+    },
+    {
+      "at": "2026-10-28T23:18:36.592Z",
+      "event": "redrafted",
+      "detail": "v5 with 1 learning(s) in memory"
     }
   ],
-  "user_edits": [],
+  "user_edits": [
+    {
+      "at": "2026-10-28T23:09:24.142Z",
+      "decision": "rejected",
+      "note": "Never open with the word \"Hi\" or the business name. Open with the single measured defect, in the first six words. And never mention a score out of 100 anywhere in the email — business owners do not care about our number, they care about missed calls.",
+      "edited_subject": null,
+      "edited_body": null,
+      "diff_note": null
+    }
+  ],
   "url": "https://harbor-vine-plumbing.example",
   "business_name": "Harbor & Vine Plumbing",
   "niche": "plumbers",
@@ -52,7 +86,7 @@
   "source": "seeded demo fixture",
   "demo": true,
   "last_run_id": "2026-10-28-mvspt2uv",
-  "updated_at": "2026-10-28T23:01:06.575Z",
+  "updated_at": "2026-10-28T23:18:36.592Z",
   "context": {
     "business_name": "Harbor & Vine Plumbing",
     "services": [
@@ -827,17 +861,102 @@
     }
   ],
   "draft": {
-    "subject": "Phone link not tappable",
-    "body": "Subject: Phone link not tappable\n\nHi,\n\nYour phone number is not a tappable tel: link (F1). It also lacks a viewport meta tag (F2) and the contact button is too small for thumbs (F3).\n\nEvery mobile visitor who wants to call hits a dead tap. That lost call can mean a missed emergency job, which costs you revenue.\n\nCheck this - I rebuilt your page so you can look at it instead of imagining it: http://localhost:3000/mockup/demo-harbor-vine-plumbing-example\n\nThat page is a concept mockup I made, not affiliated with Harbor & Vine Plumbing. It passed 11 of 13 automated checks, against 3 of 13 for the current page.\n\nPlease look at the page I already built and reply yes or no.\n\nBest,\n\nSam Reyes - 1234 Example St, Suite 100, San Diego, CA 92101\nYou are receiving this one-off note because your business is listed publicly in San Diego, CA.\nReply \"unsubscribe\" and I will remove you and never contact you again.",
+    "subject": "Missed call on mobile",
+    "body": "Phone number not tappable on mobile — visitors can’t call with a tap.\n\nEvery missed call costs you a job.\n\nHere is the rebuilt page - I rebuilt your page so you can look at it instead of imagining it: http://localhost:3000/mockup/demo-harbor-vine-plumbing-example\n\nThat page is a concept mockup I made, not affiliated with Harbor & Vine Plumbing. It passed 11 of 13 automated checks, against 3 of 13 for the current page.\n\nLook at the page and reply yes or no.\n\nThanks,\n\nSam Reyes\n\n1234 Example St, Suite 100, San Diego, CA 92101\n\nYou are receiving this one-off note because your business is listed publicly in San Diego, CA. Reply \"unsubscribe\" and I will remove you and never contact you again.",
     "cited_finding_ids": [
       "F1",
       "F2",
       "F3"
     ],
-    "applied_learnings": [],
-    "word_count": 120,
+    "applied_learnings": [
+      "Never open with \"Hi\" or the business name. Open with the single measured defect, in the first six words.",
+      "Never mention a score out of 100 anywhere in the email"
+    ],
+    "word_count": 82,
     "mockup_url": "http://localhost:3000/mockup/demo-harbor-vine-plumbing-example",
-    "drafted_at": "2026-10-28T23:01:06.570Z",
-    "learnings_available": 0
-  }
+    "drafted_at": "2026-10-28T23:18:36.588Z",
+    "learnings_available": 1,
+    "version": 5
+  },
+  "approved_at": null,
+  "draft_history": [
+    {
+      "subject": "Phone link not tappable",
+      "body": "Subject: Phone link not tappable\n\nHi,\n\nYour phone number is not a tappable tel: link (F1). It also lacks a viewport meta tag (F2) and the contact button is too small for thumbs (F3).\n\nEvery mobile visitor who wants to call hits a dead tap. That lost call can mean a missed emergency job, which costs you revenue.\n\nCheck this - I rebuilt your page so you can look at it instead of imagining it: http://localhost:3000/mockup/demo-harbor-vine-plumbing-example\n\nThat page is a concept mockup I made, not affiliated with Harbor & Vine Plumbing. It passed 11 of 13 automated checks, against 3 of 13 for the current page.\n\nPlease look at the page I already built and reply yes or no.\n\nBest,\n\nSam Reyes - 1234 Example St, Suite 100, San Diego, CA 92101\nYou are receiving this one-off note because your business is listed publicly in San Diego, CA.\nReply \"unsubscribe\" and I will remove you and never contact you again.",
+      "cited_finding_ids": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "applied_learnings": [],
+      "word_count": 120,
+      "mockup_url": "http://localhost:3000/mockup/demo-harbor-vine-plumbing-example",
+      "drafted_at": "2026-10-28T23:01:06.570Z",
+      "learnings_available": 0,
+      "operator_decision": "rejected",
+      "superseded_at": "2026-10-28T23:10:20.660Z"
+    },
+    {
+      "subject": "Phone number not tappable on mobile",
+      "body": "Phone number not tappable on mobile\nQuick note\nYour phone number appears as plain text, not a tappable link (F1). That means every mobile visitor who wants to call hits a dead tap, costing you calls.\nNo viewport meta tag (F2) makes the page unreadable on phones, and small tap targets (F3) keep the contact button out of reach.\nI rebuilt your page so you can look at it instead of imagining it: http://localhost:3000/mockup/demo-harbor-vine-plumbing-example\nIt passed 11 of 13 automated checks, while the live page only cleared 3.\nLook at the mockup and reply yes or no.\nApplied: 1\nRegards,\nSam Reyes\n1234 Example St, Suite 100, San Diego, CA 92101\nYou are receiving this one-off note because your business is listed publicly in San Diego, CA. Reply \"unsubscribe\" and I will remove you and never contact you again.",
+      "cited_finding_ids": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "applied_learnings": [
+        "1"
+      ],
+      "word_count": 100,
+      "mockup_url": "http://localhost:3000/mockup/demo-harbor-vine-plumbing-example",
+      "drafted_at": "2026-10-28T23:10:20.660Z",
+      "learnings_available": 1,
+      "version": 2,
+      "superseded_at": "2026-10-28T23:12:02.217Z"
+    },
+    {
+      "subject": "Phone number not tappable on mobile",
+      "body": "Phone number not tappable on mobile, as noted in audit finding F1, also missing viewport meta (F2) and tiny tap targets (F3). Every mobile visitor who wants to call hits a dead tap, costing you leads. I rebuilt your page so you can look at it instead of imagining it: http://localhost:3000/mockup/demo-harbor-vine-plumbing-example. That page passed 11 of 13 automated checks, while your current page passed only 3. If it helps, reply yes and I’ll send the invoice; if not, no reply needed. Sam Reyes - 1234 Example St, Suite 100, San Diego, CA 92101 You are receiving this one-off note because your business is listed publicly in San Diego, CA. Reply \"unsubscribe\" and I will remove you and never contact you again.",
+      "cited_finding_ids": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "applied_learnings": [
+        "Never open with 'Hi' or business name. Open with measured defect in first six words.",
+        "Never mention a score out of 100.",
+        "Cite finding ids for all factual claims.",
+        "Lead with single most concrete finding, then reference one or two more.",
+        "Never imply relationship or prior conversation.",
+        "Never say mockup is live or endorsed.",
+        "Reproduce unsubscribe line and address placeholder exactly.",
+        "Keep body under 180 words before footer.",
+        "Use real score numbers, no rounding."
+      ],
+      "word_count": 121,
+      "mockup_url": "http://localhost:3000/mockup/demo-harbor-vine-plumbing-example",
+      "drafted_at": "2026-10-28T23:12:02.217Z",
+      "learnings_available": 1,
+      "version": 3,
+      "superseded_at": "2026-10-28T23:17:09.281Z"
+    },
+    {
+      "subject": "Phone number not tappable",
+      "body": "Phone number isn’t tappable on mobile\n\nEvery mobile visitor who wants to call hits a dead tap. For an emergency plumber, that’s the moment a burst pipe turns into a lost job. That’s the F1 problem: a tappable phone number would capture the call.\n\nF2: no viewport meta tag; F3: tap targets under 44px, so the whole site looks broken on phones.\n\nI rebuilt your page so you can look at it instead of imagining it: http://localhost:3000/mockup/demo-harbor-vine-plumbing-example\n\nIt passed 11 of 13 automated checks, against 3 for the current page.\n\nLook at the page I already built, reply yes or no.\n\nSam Reyes\n\nSam Reyes - 1234 Example St, Suite 100, San Diego, CA 92101\nYou are receiving this one-off note because your business is listed publicly in {{city}}. Reply \"unsubscribe\" and I will remove you and never contact you again.",
+      "cited_finding_ids": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "applied_learnings": [
+        "Never open with 'Hi' or business name; start with measured defect in first six words; never mention score out of 100."
+      ],
+      "word_count": 101,
+      "mockup_url": "http://localhost:3000/mockup/demo-harbor-vine-plumbing-example",
+      "drafted_at": "2026-10-28T23:17:09.281Z",
+      "learnings_available": 1,
+      "version": 4,
+      "superseded_at": "2026-10-28T23:18:36.588Z"
+    }
+  ]
 }

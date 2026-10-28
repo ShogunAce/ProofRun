@@ -1,0 +1,34 @@
+{
+  "name": "missed-call-offer",
+  "title": "Missed Call Offer",
+  "version": "0.1.0",
+  "status": "stub",
+  "one_liner": "When a prospect's phone goes unanswered, offer them the thing that would have answered it.",
+  "description": "A stub, included to show that ProofRun is a skill on a platform rather than the whole product. The agent core discovers this folder from the filesystem the same way it discovers proofrun; it has a manifest and a prompt but no runner, so the core reports it as a stub and refuses to invoke it. See prompt.md for the intended loop.",
+  "inputs": {
+    "niche": { "type": "string", "required": true, "example": "HVAC contractors" },
+    "city": { "type": "string", "required": true, "example": "Phoenix, AZ" },
+    "call_window": { "type": "string", "required": false, "default": "business hours", "description": "When to place the test call." }
+  },
+  "steps": [
+    { "id": "discover", "title": "Discover", "tools": ["tavily.search"], "model_roles": ["classify"] },
+    { "id": "call_test", "title": "Place a test call", "tools": ["NOT BUILT: telephony adapter"], "model_roles": [] },
+    { "id": "measure", "title": "Measure the gap", "tools": [], "model_roles": ["extract"] },
+    { "id": "build_responder", "title": "Build the missed-call responder", "tools": ["sandbox.write"], "model_roles": ["build"] },
+    { "id": "verify", "title": "Run and test", "tools": ["capture.capture"], "model_roles": ["repair"] },
+    { "id": "draft", "title": "Draft outreach", "tools": [], "model_roles": ["draft_email"] },
+    { "id": "await_approval", "title": "Wait for a human", "tools": [], "model_roles": [] }
+  ],
+  "memory": {
+    "reads": ["memory/profile.md", "memory/learnings.md", "config/voice.md"],
+    "writes": ["memory/prospects/<id>.md", "memory/learnings.md"]
+  },
+  "guarantees": [
+    "No call is ever placed. The telephony adapter does not exist.",
+    "No draft is ever sent."
+  ],
+  "blocked_on": [
+    "A telephony provider and the consent and recording law that comes with placing test calls to businesses. That is a legal question before it is an engineering one, which is exactly why this skill is a stub."
+  ],
+  "entry": null
+}

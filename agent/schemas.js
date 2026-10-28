@@ -200,17 +200,41 @@ export const contextZ = z.object({
 
 export const draftJsonSchema = strict({
   subject: str('Under 60 characters. No clickbait, no all caps.'),
-  body: str('The full email body, plain text with blank lines between paragraphs. Includes the unsubscribe line and the physical address placeholder exactly as given in the template.'),
+  body: str('ONLY the words of the email itself, starting with its first sentence and ending with the unsubscribe line. Separate every paragraph with a blank line (\\n\\n) — at least four of them, and the signature and footer each stand alone. Never repeat the subject inside it, never write a "Subject:" line, and never include field names, labels, counts or notes to yourself.'),
   cited_finding_ids: { type: 'array', items: { type: 'string' }, description: 'Audit finding ids actually referenced in the body.' },
-  applied_learnings: { type: 'array', items: { type: 'string' }, description: 'Which operator learnings from memory you followed, quoted short. Empty array if memory was empty.' },
+  applied_learnings: { type: 'array', items: { type: 'string' }, description: 'ONLY rules that came from the operator learnings list you were given, each quoted short. Not the standing instructions in your system prompt — those are not learnings. Never an index or a number. Empty array if the learnings list was empty.' },
   word_count: { type: 'integer', description: 'Words in the body before the footer.' },
 });
 
+// The body is the email and nothing else. Nemotron leaked a repeated "Subject:"
+// line and an "Applied: 1" note into it on live runs, so both are rejected here
+// and the model gets one chance to fix its own output.
 export const draftZ = z.object({
   subject: z.string().min(3).max(120),
-  body: z.string().min(50),
+  body: z
+    .string()
+    .min(50)
+    .refine((b) => !/^\s*subject\s*:/i.test(b) && !/\n\s*subject\s*:/i.test(b), {
+      message: 'The body must not contain a "Subject:" line. The subject belongs in the subject field only; start the body with the first sentence of the email.',
+    })
+    .refine((b) => !/^\s*(applied|learnings applied|rules applied|note to self|word count)\s*:/im.test(b), {
+      message: 'The body must not contain field labels or notes to yourself such as "Applied:" or "Word count:". It contains only the words the recipient reads.',
+    })
+    .refine((b) => !/\{\{\s*\w+\s*\}\}/.test(b), {
+      message: 'The body still contains an unfilled {{placeholder}} from the template. Replace every placeholder with the real value you were given.',
+    })
+    .refine((b) => !/\b[Ff]\d\b/.test(b), {
+      message: 'The body refers to findings by internal id (F1, F2). The recipient has never seen those ids. Describe the problem in words; the ids belong in cited_finding_ids only.',
+    })
+    .refine((b) => b.split(/\n\s*\n/).filter((p) => p.trim()).length >= 4, {
+      message: 'The body is one unbroken block of text. Separate each paragraph with a blank line, and put the signature and the unsubscribe footer on their own. An unsolicited email that arrives as a wall of text does not get read.',
+    }),
   cited_finding_ids: z.array(z.string()),
-  applied_learnings: z.array(z.string()),
+  applied_learnings: z
+    .array(z.string())
+    .refine((a) => a.every((s) => !/^\s*\d+\s*$/.test(s)), {
+      message: 'applied_learnings must quote the rule text, not its index. Replace any bare number with the words of the rule you followed.',
+    }),
   word_count: z.number().int().nonnegative(),
 });
 
