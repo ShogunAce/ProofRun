@@ -1,0 +1,16 @@
+{
+  "default": { "niche": "plumbers", "city": "San Diego, CA" },
+  "niches": [
+    { "niche": "plumbers", "city": "San Diego, CA", "notes": "High ticket, emergency intent, rarely a usable mobile site." },
+    { "niche": "HVAC contractors", "city": "Phoenix, AZ", "notes": "Seasonal urgency, strong paid competition." },
+    { "niche": "roofers", "city": "Tampa, FL", "notes": "Storm-driven demand spikes." },
+    { "niche": "dental practices", "city": "Austin, TX", "notes": "Cares about looking credible, slow to update sites." },
+    { "niche": "landscapers", "city": "Portland, OR", "notes": "Visual trade, almost always a weak gallery." }
+  ],
+  "disqualify_if": [
+    "the site is a Facebook, Instagram or Yelp page rather than a real website",
+    "the site is a national franchise or a directory, not an independent local business",
+    "the site was clearly redesigned recently and already scores well",
+    "there is no contact route at all, so there is nobody to send a draft to"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "proofrun",
+  "title": "ProofRun",
+  "version": "1.0.0",
+  "one_liner": "Find local businesses with weak websites, prove it, rebuild the page, test the rebuild, and draft the outreach.",
+  "description": "The flagship skill. Takes a niche and a city, discovers candidate businesses, audits their sites against a fixed automated check suite, writes a replacement page as real HTML/CSS, runs that page headlessly against the same checks, repairs it on failure up to a retry cap, and drafts a personalized outreach email citing only verified findings. A human approves everything; nothing is ever sent.",
+  "inputs": {
+    "niche": { "type": "string", "required": true, "example": "plumbers" },
+    "city": { "type": "string", "required": true, "example": "San Diego, CA" },
+    "count": { "type": "integer", "required": false, "default": 1, "description": "How many prospects to carry through the loop." },
+    "mode": { "type": "string", "required": false, "enum": ["demo", "live"], "description": "demo replays the seeded sample prospect and never calls Tavily." }
+  },
+  "steps": [
+    { "id": "discover", "title": "Discover", "tools": ["tavily.search"], "model_roles": ["classify"] },
+    { "id": "enrich", "title": "Enrich", "tools": ["tavily.extract", "capture.extractText"], "model_roles": ["extract"] },
+    { "id": "capture", "title": "Capture", "tools": ["capture.capture"], "model_roles": [] },
+    { "id": "audit", "title": "Audit", "tools": [], "model_roles": ["audit"] },
+    { "id": "plan", "title": "Plan the redesign", "tools": [], "model_roles": ["redesign_plan"] },
+    { "id": "build", "title": "Write the page", "tools": ["sandbox.write"], "model_roles": ["build"] },
+    { "id": "verify", "title": "Run and test", "tools": ["capture.capture", "sandbox.serve"], "model_roles": ["repair", "summarize_tests"] },
+    { "id": "prove", "title": "Assemble proof", "tools": [], "model_roles": [] },
+    { "id": "draft", "title": "Draft outreach", "tools": [], "model_roles": ["draft_email"] },
+    { "id": "await_approval", "title": "Wait for a human", "tools": [], "model_roles": [] }
+  ],
+  "memory": {
+    "reads": ["memory/profile.md", "memory/learnings.md", "config/voice.md", "config/offer.md"],
+    "writes": ["memory/prospects/<id>.md", "memory/learnings.md", "memory/runs/<date>.md"]
+  },
+  "guarantees": [
+    "No email is ever sent. Approved drafts are exported, not delivered.",
+    "Every audit finding carries a confidence level and names its evidence source.",
+    "The before and after scores come from the same check code at the same viewports.",
+    "If verification still fails at the retry cap, the run is reported as failed. There is no fake pass."
+  ],
+  "entry": "runner.js"
+}

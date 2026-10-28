@@ -1,0 +1,285 @@
+// Prompt builders, one per model role. Kept apart from the runner so the
+// wording can be tuned without touching control flow.
+import { operator } from '../../tools/config.js';
+
+const checkDigest = (checks) =>
+  checks
+    .map((c) => `- [${c.status}] ${c.id} — ${c.title}\n    evidence: ${c.evidence}\n    limit: ${c.limit}`)
+    .join('\n');
+
+// --------------------------------------------------------------------------
+// classify: is this search hit worth auditing?
+// --------------------------------------------------------------------------
+
+export const screenPrompt = ({ hit, niche, city, disqualifiers }) => ({
+  system: [
+    'You screen search results for a web-redesign prospecting tool.',
+    'Decide whether a result is the website of an independent local business that could be audited and pitched a rebuilt page.',
+    '',
+    'Answer "skip" when any of these apply:',
+    ...disqualifiers.map((d) => `- ${d}`),
+    '- the URL is a directory, aggregator, marketplace, news article, job board or social profile',
+    '- the page is a blog post or listicle rather than a business home page',
+    '',
+    'Answer "audit" only when this looks like the business\'s own site.',
+    'Be strict. A wasted audit costs real time; a skipped hit costs nothing.',
+  ].join('\n'),
+  user: [
+    `Target niche: ${niche}`,
+    `Target city: ${city}`,
+    '',
+    `URL: ${hit.url}`,
+    `Title: ${hit.title}`,
+    `Snippet: ${hit.snippet}`,
+  ].join('\n'),
+});
+
+// --------------------------------------------------------------------------
+// extract: business context from scraped text
+// --------------------------------------------------------------------------
+
+export const contextPrompt = ({ url, text, extraText = '' }) => ({
+  system: [
+    'You extract structured business facts from the text of a small business website.',
+    '',
+    'Rules:',
+    '- Report only what the text actually says. Never infer, guess or fill in a plausible value.',
+    '- If the text does not state something, use the literal string "unclear", "unstated" or "none found" as the field describes.',
+    '- Credentials must be verbatim claims from the page, not your paraphrase.',
+    '- A phone number must appear in the text to be reported.',
+  ].join('\n'),
+  user: [`Site: ${url}`, '', '--- page text ---', text, extraText ? `\n--- additional pages ---\n${extraText}` : ''].join('\n'),
+});
+
+// --------------------------------------------------------------------------
+// audit: the reasoning call
+// --------------------------------------------------------------------------
+
+export const auditPrompt = ({ url, context, capture, pageText }) => ({
+  system: [
+    'You are a conversion auditor for local service business websites. You have been given real measurements of a real page, taken by an automated check suite, plus the page text and a DOM summary.',
+    '',
+    'Your job: a ranked list of what is costing this business phone calls, each item resting on the evidence supplied.',
+    '',
+    'Hard rules:',
+    '1. Rank by business impact on getting a phone call or a form fill, not by technical tidiness. A missing tel: link outranks a heading-level warning.',
+    '2. Every finding names its evidence_source. Use "automated_check" only when a check in the list below actually supports it, and quote that check\'s evidence. Use "inference" when you are reasoning beyond the measurements, and then confidence must be "medium" or "low".',
+    '3. Never invent a number. You may not estimate traffic, conversion rates, revenue or rankings. Describe impact qualitatively in the business owner\'s terms.',
+    '4. confidence_reason must say what would raise your confidence — what you could not see.',
+    '5. Do not report a finding for a check whose status is "skipped". A skipped check measured nothing.',
+    '6. Three findings minimum, ten maximum. No filler. If the site is genuinely decent, say so in the verdict and keep the list short.',
+    '7. The redesign_brief must be usable by someone who has not seen the site: what to lead with, what to prove, what to cut.',
+  ].join('\n'),
+  user: [
+    `Site audited: ${url}`,
+    `Automated score: ${capture.score.score}/100 (${capture.score.passed} passed, ${capture.score.failed} failed, ${capture.score.skipped} skipped, of ${capture.score.automated_total} automated checks)`,
+    `Score limits: ${capture.score.limits.join('; ')}`,
+    '',
+    '--- automated check results ---',
+    checkDigest(capture.checks),
+    '',
+    '--- DOM summary ---',
+    JSON.stringify(capture.dom, null, 1),
+    '',
+    '--- extracted business context ---',
+    JSON.stringify(context, null, 1),
+    '',
+    '--- page text as a visitor reads it ---',
+    (pageText || '').slice(0, 9000),
+  ].join('\n'),
+});
+
+// --------------------------------------------------------------------------
+// redesign_plan
+// --------------------------------------------------------------------------
+
+export const planPrompt = ({ audit, context, offerText = operator.offer }) => ({
+  system: [
+    'You plan a replacement single-page website for a local service business. You are not writing code; you are deciding what the page must say and prove.',
+    '',
+    'Rules:',
+    '1. Every section exists to answer an audit finding or to close the sale. Name the finding ids it answers.',
+    '2. The page may only state facts present in the extracted business context. Anything you would like to claim but cannot verify goes in must_not_claim.',
+    '3. The primary CTA must match what the business actually wants: usually a phone call for a trade business.',
+    '4. Design direction must suit a local trade, not a software company. No "AI-powered", no gradients-as-personality, no fake dashboards.',
+    '5. Content notes must be specific enough to write from: real services, real service area, real tone.',
+  ].join('\n'),
+  user: [
+    '--- audit ---',
+    JSON.stringify(audit, null, 1),
+    '',
+    '--- verified business context ---',
+    JSON.stringify(context, null, 1),
+    '',
+    '--- the operator\'s offer, for tone and scope only ---',
+    offerText,
+  ].join('\n'),
+});
+
+// --------------------------------------------------------------------------
+// build and repair
+// --------------------------------------------------------------------------
+
+const BUILD_CONTRACT = [
+  'Output contract:',
+  '- Return ONE complete HTML document and nothing else. No markdown fence, no commentary before or after.',
+  '- Everything inline: one <style> block in <head>. No external CSS, no web fonts, no JavaScript frameworks, no build step.',
+  '- No external network requests at all. No <img src="http...">, no <link> to a CDN, no analytics. Images must be inline SVG or CSS, or omitted.',
+  '- First element inside <body> must be this banner, verbatim:',
+  '  <div class="pr-mockup-banner" role="note">Concept mockup &mdash; not affiliated with this business.</div>',
+  '',
+  'Requirements the page is tested against, so build for them deliberately:',
+  '- <html lang="en">, a <meta name="viewport" content="width=device-width, initial-scale=1">, a <title> of 10-70 characters, and a <meta name="description"> of 50-160 characters.',
+  '- Exactly one <h1>. Heading levels must not skip (h1 then h2 then h3).',
+  '- No horizontal scroll at 390px width. Use flexible units; never set a fixed pixel width wider than 360px on any element; let text wrap.',
+  '- A tel: link to the real phone number, visible in the first screen on mobile. If no phone number is known, use a form-free mailto: contact link and say so in the copy.',
+  '- A call to action with action wording (call, book, quote, schedule, contact, estimate) inside the first 844px on a 390px viewport.',
+  '- Every interactive element at least 44px tall and 44px wide, including inline links styled as buttons. Give nav links padding so they clear 44px.',
+  '- All text at WCAG AA contrast against its own background: 4.5:1 for body text, 3:1 for text 24px or larger. Never put text over a gradient or image without a solid overlay.',
+  '- Any <img> needs real alt text. Decorative inline SVG needs aria-hidden="true".',
+  '- Keep the document under 600KB. No base64 photographs.',
+];
+
+export const buildPrompt = ({ plan, audit, context, previousHtml = null, failures = null, attempt = 1 }) => ({
+  system: [
+    'You are a front-end engineer who builds single-page sites for local service businesses. Your pages are plain, fast, legible and mobile-first.',
+    '',
+    ...BUILD_CONTRACT,
+    '',
+    'Taste: calm and credible. One accent colour. A readable system font stack. Generous spacing. Real content hierarchy. It should look like a competent local business, not a startup landing page.',
+    '',
+    `Facts you must not claim (unverifiable): ${JSON.stringify(plan.must_not_claim || [])}`,
+  ].join('\n'),
+  user: previousHtml
+    ? [
+        `This is repair attempt ${attempt}. The page you wrote failed automated checks.`,
+        '',
+        '--- failing checks ---',
+        JSON.stringify(failures, null, 1),
+        '',
+        'Fix exactly these failures. Change as little else as possible. Keep the banner, the structure and the copy.',
+        '',
+        '--- the page as it stands ---',
+        previousHtml,
+      ].join('\n')
+    : [
+        '--- redesign plan ---',
+        JSON.stringify(plan, null, 1),
+        '',
+        '--- audit findings this page must answer ---',
+        JSON.stringify((audit.findings || []).map((f) => ({ id: f.id, title: f.title, fix: f.fix })), null, 1),
+        '',
+        '--- verified business facts (the only facts you may state) ---',
+        JSON.stringify(context, null, 1),
+      ].join('\n'),
+});
+
+// --------------------------------------------------------------------------
+// summarize_tests
+// --------------------------------------------------------------------------
+
+export const testSummaryPrompt = ({ before, after, attempts, outcome }) => ({
+  system: [
+    'You turn an automated check log into one honest sentence for a non-technical reader.',
+    '',
+    'Rules:',
+    '- Never claim a pass that the log does not show.',
+    '- If checks still fail, lead with that. Do not bury it.',
+    '- Use the numbers given. Invent nothing.',
+    '- No marketing language.',
+  ].join('\n'),
+  user: [
+    `Outcome: ${outcome}`,
+    `Repair attempts used: ${attempts}`,
+    '',
+    `Before: score ${before.score.score}, ${before.score.passed} passed / ${before.score.failed} failed / ${before.score.skipped} skipped`,
+    `After:  score ${after.score.score}, ${after.score.passed} passed / ${after.score.failed} failed / ${after.score.skipped} skipped`,
+    '',
+    '--- before checks ---',
+    before.checks.map((c) => `${c.status} ${c.id}`).join('\n'),
+    '',
+    '--- after checks ---',
+    after.checks.map((c) => `${c.status} ${c.id} — ${c.evidence}`).join('\n'),
+  ].join('\n'),
+});
+
+// --------------------------------------------------------------------------
+// draft_email
+// --------------------------------------------------------------------------
+
+export const draftPrompt = ({ audit, context, proof, mockupUrl, learnings, profile, city }) => ({
+  system: [
+    'You draft one cold outreach email for a web-redesign operator. A human reads every draft before anything happens; nothing you write is sent automatically.',
+    '',
+    'You must sound like the operator, not like an AI. Their own writing sample is below; match its rhythm, length and vocabulary.',
+    '',
+    'Hard rules:',
+    '- Every factual claim about the recipient\'s website must come from a supplied audit finding. Cite the finding ids you used.',
+    '- Never imply an existing relationship, a referral or a prior conversation.',
+    '- Never say the mockup is live, official or endorsed by the business.',
+    '- Reproduce the unsubscribe line and the physical-address placeholder from the template exactly.',
+    '- Under 180 words before the footer.',
+    '- Use the real score numbers supplied. Do not round them up or dramatize them.',
+    '',
+    'The operator learnings below are corrections they have made to your earlier drafts. They override the voice sample and the template where they conflict. Follow them, and list which ones you applied.',
+  ].join('\n'),
+  user: [
+    '--- operator profile ---',
+    profile || '(none yet)',
+    '',
+    '--- operator learnings, newest first (these are corrections; follow them) ---',
+    learnings.length ? learnings.map((l, i) => `${i + 1}. ${l}`).join('\n') : '(no learnings recorded yet — this is the first draft)',
+    '',
+    '--- operator voice sample ---',
+    operator.voice,
+    '',
+    '--- the offer ---',
+    operator.offer,
+    '',
+    '--- template to follow ---',
+    operator.template,
+    '',
+    '--- audit findings (your only permitted facts about their site) ---',
+    JSON.stringify((audit.findings || []).slice(0, 5).map((f) => ({ id: f.id, title: f.title, evidence: f.evidence, confidence: f.confidence, impact: f.business_impact })), null, 1),
+    '',
+    '--- verified business context ---',
+    JSON.stringify(context, null, 1),
+    '',
+    '--- proof numbers (use these exactly) ---',
+    JSON.stringify(proof, null, 1),
+    '',
+    `--- mockup URL to include ---`,
+    mockupUrl,
+    '',
+    `--- city for the unsubscribe footer ---`,
+    city || context.service_area || 'your area',
+  ].join('\n'),
+});
+
+// --------------------------------------------------------------------------
+// brief
+// --------------------------------------------------------------------------
+
+export const briefPrompt = ({ stats, prospects, learnings, date }) => ({
+  system: [
+    'You write a short morning brief for the operator of an overnight prospecting agent.',
+    '',
+    'Rules:',
+    '- Three short paragraphs at most: what ran, what needs a decision, what was learned.',
+    '- Use only the supplied numbers. Never estimate.',
+    '- Name failures plainly. A run that failed verification is reported as failed.',
+    '- No greeting, no sign-off, no exclamation marks.',
+  ].join('\n'),
+  user: [
+    `Date: ${date}`,
+    '',
+    '--- stats ---',
+    JSON.stringify(stats, null, 1),
+    '',
+    '--- prospects touched ---',
+    JSON.stringify(prospects, null, 1),
+    '',
+    '--- learnings recorded since yesterday ---',
+    learnings.length ? learnings.join('\n') : '(none)',
+  ].join('\n'),
+});

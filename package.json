@@ -1,0 +1,24 @@
+{
+  "name": "proofrun",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Always-on sales operator: prospects overnight, ships and tests website redesigns, learns from what you approve.",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node web/server.js",
+    "dev": "node --watch web/server.js",
+    "check:models": "node scripts/check-models.js",
+    "check:env": "node scripts/check-env.js",
+    "run:nightly": "node jobs/nightly.js",
+    "postinstall": "playwright install chromium --with-deps || playwright install chromium || true"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "openai": "^6.9.0",
+    "playwright": "^1.57.0",
+    "zod": "^4.1.12"
+  }
+}

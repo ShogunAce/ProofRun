@@ -1,0 +1,10 @@
+node_modules/
+.env
+.env.local
+*.log
+data/runs/*
+!data/runs/.gitkeep
+data/mockups/*
+!data/mockups/.gitkeep
+memory/prospects/live-*
+.DS_Store
