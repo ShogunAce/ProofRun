@@ -2,6 +2,13 @@
 // wording can be tuned without touching control flow.
 import { operator } from '../../tools/config.js';
 
+// Models date-reason against their training cutoff unless told otherwise. On a
+// live run, Ultra flagged genuine October 2026 reviews as "future-dated and
+// probably fabricated" because it believed the year was 2025. Any prompt that
+// reasons about recency gets the real date.
+const todayLine = () =>
+  `Today's date is ${new Date().toISOString().slice(0, 10)}. Use it for any judgment about how recent or stale something is. Do not assume a date from your training data.`;
+
 const checkDigest = (checks) =>
   checks
     .map((c) => `- [${c.status}] ${c.id} — ${c.title}\n    evidence: ${c.evidence}\n    limit: ${c.limit}`)
@@ -42,7 +49,12 @@ export const contextPrompt = ({ url, text, extraText = '' }) => ({
   system: [
     'You extract structured business facts from the text of a small business website.',
     '',
+    todayLine(),
+    '',
     'Rules:',
+    '- `services` must be the actual trades or jobs the business performs (for example "drain cleaning", "water heater replacement"). Discounts, slogans, taglines and review text are not services. If no service is named anywhere, return an empty array.',
+    '- `contact_page_url` must be a link that actually appears in the text and points at a contact or about page. The home page URL is not a contact page; return "none found" instead.',
+    '- `years_in_business` is a count or a founding year as the page states it (for example "since 1986" or "40 years"). Never a date range you assembled yourself.',
     '- Report only what the text actually says. Never infer, guess or fill in a plausible value.',
     '- If the text does not state something, use the literal string "unclear", "unstated" or "none found" as the field describes.',
     '- Credentials must be verbatim claims from the page, not your paraphrase.',
@@ -58,6 +70,8 @@ export const contextPrompt = ({ url, text, extraText = '' }) => ({
 export const auditPrompt = ({ url, context, capture, pageText }) => ({
   system: [
     'You are a conversion auditor for local service business websites. You have been given real measurements of a real page, taken by an automated check suite, plus the page text and a DOM summary.',
+    '',
+    todayLine(),
     '',
     'Your job: a ranked list of what is costing this business phone calls, each item resting on the evidence supplied.',
     '',
@@ -128,16 +142,20 @@ const BUILD_CONTRACT = [
   '- First element inside <body> must be this banner, verbatim:',
   '  <div class="pr-mockup-banner" role="note">Concept mockup &mdash; not affiliated with this business.</div>',
   '',
-  'Requirements the page is tested against, so build for them deliberately:',
-  '- <html lang="en">, a <meta name="viewport" content="width=device-width, initial-scale=1">, a <title> of 10-70 characters, and a <meta name="description"> of 50-160 characters.',
-  '- Exactly one <h1>. Heading levels must not skip (h1 then h2 then h3).',
-  '- No horizontal scroll at 390px width. Use flexible units; never set a fixed pixel width wider than 360px on any element; let text wrap.',
-  '- A tel: link to the real phone number, visible in the first screen on mobile. If no phone number is known, use a form-free mailto: contact link and say so in the copy.',
-  '- A call to action with action wording (call, book, quote, schedule, contact, estimate) inside the first 844px on a 390px viewport.',
-  '- Every interactive element at least 44px tall and 44px wide, including inline links styled as buttons. Give nav links padding so they clear 44px.',
-  '- All text at WCAG AA contrast against its own background: 4.5:1 for body text, 3:1 for text 24px or larger. Never put text over a gradient or image without a solid overlay.',
-  '- Any <img> needs real alt text. Decorative inline SVG needs aria-hidden="true".',
-  '- Keep the document under 600KB. No base64 photographs.',
+  // Deliberately an intent-level brief, not the grader's thresholds. A real
+  // operator briefing a builder says "mobile-first and WCAG AA", not "390px
+  // and 4.5:1". Handing over the exact numbers the check suite uses would be
+  // teaching to the test, and it would make the repair loop decorative. When
+  // the page misses, the repair prompt gets the precise failing measurement.
+  'Quality bar:',
+  '- Mobile first. Build for a phone held in one hand and let the layout grow to desktop. Nothing may overflow horizontally at phone widths.',
+  '- A complete document head: a declared language, a responsive viewport, a descriptive page title, and a meta description that reads like a search result.',
+  '- One top-level heading, and a heading outline that steps down one level at a time.',
+  '- The phone number must be a real tel: link, reachable in the first screenful on a phone, alongside a call to action whose wording names the action (call, book, quote, schedule, estimate).',
+  '- Comfortable touch targets. Assume a wet thumb in a hurry, not a mouse pointer.',
+  '- WCAG AA contrast for all text against the background it actually sits on.',
+  '- Real alt text on any image. Decorative inline SVG gets aria-hidden="true".',
+  '- Light. This is one document with no photographs; keep it that way.',
 ];
 
 export const buildPrompt = ({ plan, audit, context, previousHtml = null, failures = null, attempt = 1 }) => ({
@@ -157,7 +175,8 @@ export const buildPrompt = ({ plan, audit, context, previousHtml = null, failure
         '--- failing checks ---',
         JSON.stringify(failures, null, 1),
         '',
-        'Fix exactly these failures. Change as little else as possible. Keep the banner, the structure and the copy.',
+        'Each failure below carries the exact measurement that failed and the threshold it had to clear. Fix exactly these, to those numbers. Change as little else as possible: keep the banner, the structure and the copy.',
+        'Do not break a check that is currently passing in order to fix one that is failing.',
         '',
         '--- the page as it stands ---',
         previousHtml,
@@ -215,6 +234,7 @@ export const draftPrompt = ({ audit, context, proof, mockupUrl, learnings, profi
     '',
     'Hard rules:',
     '- Every factual claim about the recipient\'s website must come from a supplied audit finding. Cite the finding ids you used.',
+    '- Lead with the single most concrete finding, then reference one or two more so it is obvious you measured the whole page rather than spotting one thing. Three findings is the sweet spot; one reads like a template.',
     '- Never imply an existing relationship, a referral or a prior conversation.',
     '- Never say the mockup is live, official or endorsed by the business.',
     '- Reproduce the unsubscribe line and the physical-address placeholder from the template exactly.',

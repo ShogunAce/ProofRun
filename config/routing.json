@@ -5,66 +5,70 @@
       "model_env": "NEMOTRON_REASONING_MODEL",
       "region_env": "NEMOTRON_REASONING_REGION",
       "temperature": 0.2,
-      "max_tokens": 6000,
+      "max_tokens": 20000,
       "why": "Ranking real page defects by business impact and attaching an honest confidence level is the hardest judgment call in the loop. Ultra 550B has the headroom for it, and its 1M context fits the whole DOM snapshot."
     },
     "redesign_plan": {
       "model_env": "NEMOTRON_REASONING_MODEL",
       "region_env": "NEMOTRON_REASONING_REGION",
       "temperature": 0.4,
-      "max_tokens": 4000,
+      "max_tokens": 12000,
       "why": "Deciding what the new page should say and prove is strategy, not markup. Same reasoning tier as the audit so the plan actually answers the findings."
     },
     "build": {
       "model_env": "NEMOTRON_BUILDER_MODEL",
       "region_env": "NEMOTRON_BUILDER_REGION",
       "temperature": 0.3,
-      "max_tokens": 16000,
+      "max_tokens": 24000,
       "why": "Long HTML/CSS generation is throughput-bound, not judgment-bound. Super 120B-A12B costs a third of Ultra per token and writes clean single-file pages."
     },
     "repair": {
       "model_env": "NEMOTRON_BUILDER_MODEL",
       "region_env": "NEMOTRON_BUILDER_REGION",
       "temperature": 0.15,
-      "max_tokens": 16000,
+      "max_tokens": 24000,
       "why": "Fixing a named failing check is a narrow, mechanical edit. Low temperature on the builder keeps a retry from rewriting the whole page."
     },
     "classify": {
       "model_env": "NEMOTRON_FAST_MODEL",
       "region_env": "NEMOTRON_FAST_REGION",
       "temperature": 0,
-      "max_tokens": 1200,
+      "max_tokens": 4000,
       "why": "Is this search hit a real local business site worth auditing? A yes/no with a reason. Nano 30B-A3B at $0.06/M makes screening dozens of hits a night effectively free."
     },
     "extract": {
       "model_env": "NEMOTRON_FAST_MODEL",
       "region_env": "NEMOTRON_FAST_REGION",
       "temperature": 0,
-      "max_tokens": 2000,
+      "max_tokens": 8000,
       "why": "Pulling business name, services, phone and contact page out of scraped text is pattern work. Fast tier, zero temperature, structured output."
     },
     "summarize_tests": {
       "model_env": "NEMOTRON_FAST_MODEL",
       "region_env": "NEMOTRON_FAST_REGION",
       "temperature": 0.1,
-      "max_tokens": 1200,
+      "max_tokens": 5000,
       "why": "Turning a raw check log into one honest human sentence. Cheap tier, and the numbers it describes are computed by code rather than by the model."
     },
     "draft_email": {
       "model_env": "NEMOTRON_FAST_MODEL",
       "region_env": "NEMOTRON_FAST_REGION",
       "temperature": 0.6,
-      "max_tokens": 1600,
+      "max_tokens": 8000,
       "why": "The draft has to sound like the operator's own voice sample, which is a style task the fast tier handles well. Findings it cites are passed in as facts, so it cannot invent evidence."
     },
     "brief": {
       "model_env": "NEMOTRON_FAST_MODEL",
       "region_env": "NEMOTRON_FAST_REGION",
       "temperature": 0.3,
-      "max_tokens": 1600,
+      "max_tokens": 6000,
       "why": "The Morning Brief narrates numbers already on disk. Cheapest tier that writes a clean paragraph."
     }
   },
-  "fallback_chain": ["NEMOTRON_BUILDER_MODEL", "NEMOTRON_FAST_MODEL"],
-  "$fallback_note": "If a role's primary model is unavailable (404/429/5xx after retries), ProofRun walks this chain and records the substitution in the run log, so the Proof screen never shows a number attributed to a model that did not produce it."
+  "fallback_chain": [
+    "NEMOTRON_BUILDER_MODEL",
+    "NEMOTRON_FAST_MODEL"
+  ],
+  "$fallback_note": "If a role's primary model is unavailable (404/429/5xx after retries), ProofRun walks this chain and records the substitution in the run log, so the Proof screen never shows a number attributed to a model that did not produce it.",
+  "$max_tokens_note": "Nemotron 3 models are reasoning models and on Token Factory max_tokens covers the reasoning trace AND the visible content. These budgets include reasoning headroom; a prompt that still truncates is escalated automatically by tools/nebius.js and the escalation is recorded in the trace."
 }

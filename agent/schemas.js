@@ -70,6 +70,10 @@ export const auditJsonSchema = strict({
   }),
 });
 
+// The prompt tells the model that an inferred finding may not carry high
+// confidence. Ultra broke that rule on a live run, so it is enforced here
+// instead of trusted: a violation fails validation and the model is handed its
+// own error once before the step fails.
 const findingZ = z.object({
   id: z.string().min(1),
   title: z.string().min(3),
@@ -81,6 +85,10 @@ const findingZ = z.object({
   confidence_reason: z.string().min(3),
   business_impact: z.string().min(3),
   fix: z.string().min(3),
+}).refine((f) => !(f.evidence_source === 'inference' && f.confidence === 'high'), {
+  message:
+    'A finding with evidence_source "inference" may not have confidence "high". Either cite the automated check or DOM fact that supports it and change evidence_source, or lower confidence to "medium" or "low".',
+  path: ['confidence'],
 });
 
 export const auditZ = z.object({

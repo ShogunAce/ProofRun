@@ -1,0 +1,843 @@
+{
+  "id": "demo-harbor-vine-plumbing-example",
+  "status": "drafted",
+  "created_at": "2026-10-28T22:54:56.867Z",
+  "history": [
+    {
+      "at": "2026-10-28T22:54:56.870Z",
+      "event": "discovered",
+      "detail": "seeded demo fixture"
+    },
+    {
+      "at": "2026-10-28T22:55:18.985Z",
+      "event": "audited",
+      "detail": "8 findings, score 30"
+    },
+    {
+      "at": "2026-10-28T22:56:05.888Z",
+      "event": "verified",
+      "detail": "passed after 0 repair attempt(s)"
+    },
+    {
+      "at": "2026-10-28T22:56:40.596Z",
+      "event": "drafted",
+      "detail": "Phone number not tappable – quick fix?"
+    },
+    {
+      "at": "2026-10-28T22:57:42.587Z",
+      "event": "discovered",
+      "detail": "seeded demo fixture"
+    },
+    {
+      "at": "2026-10-28T22:58:10.843Z",
+      "event": "audited",
+      "detail": "8 findings, score 30"
+    },
+    {
+      "at": "2026-10-28T22:58:52.148Z",
+      "event": "verified",
+      "detail": "passed after 1 repair attempt(s)"
+    },
+    {
+      "at": "2026-10-28T23:01:06.575Z",
+      "event": "drafted",
+      "detail": "Phone link not tappable"
+    }
+  ],
+  "user_edits": [],
+  "url": "https://harbor-vine-plumbing.example",
+  "business_name": "Harbor & Vine Plumbing",
+  "niche": "plumbers",
+  "city": "San Diego, CA",
+  "source": "seeded demo fixture",
+  "demo": true,
+  "last_run_id": "2026-10-28-mvspt2uv",
+  "updated_at": "2026-10-28T23:01:06.575Z",
+  "context": {
+    "business_name": "Harbor & Vine Plumbing",
+    "services": [
+      "Drain cleaning and hydro jetting",
+      "Water heater repair and replacement",
+      "Repiping (copper and PEX)",
+      "Slab leak detection",
+      "Sewer camera inspection",
+      "Emergency burst pipe repair"
+    ],
+    "service_area": "San Diego",
+    "phone": "(619) 555-0142",
+    "email": "none found",
+    "contact_page_url": "none found",
+    "years_in_business": "1987",
+    "credentials": [
+      "We are fully licensed, bonded and insured.",
+      "California contractor license number on request."
+    ],
+    "owner_name": "Ray Vine",
+    "tone_notes": "family owned and operated, second generation owner, emergency service available"
+  },
+  "scores": {
+    "before": {
+      "score": 30,
+      "passed": 3,
+      "failed": 8,
+      "skipped": 2,
+      "automated_total": 13,
+      "manual_total": 2,
+      "weight_earned": 26,
+      "weight_possible": 88,
+      "limits": [
+        "11 of 15 listed checks were automated and scored",
+        "Two viewports only: desktop 1280x800 and mobile 390x844",
+        "One cold load per viewport on the runner machine, unthrottled"
+      ]
+    },
+    "after": {
+      "score": 100,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 2,
+      "automated_total": 13,
+      "manual_total": 2,
+      "weight_earned": 84,
+      "weight_possible": 84,
+      "limits": [
+        "11 of 15 listed checks were automated and scored",
+        "Two viewports only: desktop 1280x800 and mobile 390x844",
+        "One cold load per viewport on the runner machine, unthrottled"
+      ]
+    }
+  },
+  "before_checks": [
+    {
+      "id": "mobile_no_overflow",
+      "title": "No horizontal scroll on mobile",
+      "status": "pass",
+      "weight": 12,
+      "scope": "mobile 390px",
+      "limit": "One viewport width only (390px). Not tested on tablet or at 320px.",
+      "automated": true,
+      "evidence": "Document width 980px fits the 980px viewport."
+    },
+    {
+      "id": "click_to_call",
+      "title": "Tappable phone number",
+      "status": "fail",
+      "weight": 12,
+      "scope": "DOM",
+      "limit": "Checks that a tel: link exists and is reachable, not that the number is correct.",
+      "automated": true,
+      "evidence": "A phone number appears as plain text (\"(619) 555-0142\") but is not a tel: link, so tapping it on a phone does nothing."
+    },
+    {
+      "id": "cta_above_fold",
+      "title": "Call to action above the fold",
+      "status": "pass",
+      "weight": 10,
+      "scope": "mobile 390px",
+      "limit": "Geometric only: a link or button intersecting the first 844px. Does not judge whether the wording persuades.",
+      "automated": true,
+      "evidence": "1 action(s) in the first screen, e.g. \"Contact\".",
+      "ctas": [
+        {
+          "text": "Contact",
+          "href": "#contact",
+          "top": 123
+        }
+      ]
+    },
+    {
+      "id": "text_contrast",
+      "title": "Text contrast meets WCAG AA",
+      "status": "fail",
+      "weight": 12,
+      "scope": "desktop + mobile",
+      "limit": "Computed foreground vs nearest opaque ancestor background. Text over images or gradients is reported as unmeasurable, not as a pass.",
+      "automated": true,
+      "evidence": "16 of 56 sampled text element(s) below WCAG AA. Worst is 2.13:1 where 4.5:1 is required (\"Copyright 1998-2024 Harbor & Vine Plumbing. All rights reser\").",
+      "failures": [
+        {
+          "ratio": 2.13,
+          "need": 4.5,
+          "text": "Copyright 1998-2024 Harbor & Vine Plumbing. All rights reser",
+          "color": "rgb(160, 160, 160)",
+          "background": "rgb(232,232,232)",
+          "fontSize": 10
+        },
+        {
+          "ratio": 2.13,
+          "need": 4.5,
+          "text": "Copyright 1998-2024 Harbor & Vine Plumbing. All rights reser",
+          "color": "rgb(160, 160, 160)",
+          "background": "rgb(232,232,232)",
+          "fontSize": 10
+        },
+        {
+          "ratio": 2.16,
+          "need": 4.5,
+          "text": "during business hours.Monday through Friday, 7am to 4pm.Emer",
+          "color": "rgb(168, 168, 168)",
+          "background": "rgb(244,244,244)",
+          "fontSize": 11
+        },
+        {
+          "ratio": 2.16,
+          "need": 4.5,
+          "text": "during business hours.Monday through Friday, 7am to 4pm.Emer",
+          "color": "rgb(168, 168, 168)",
+          "background": "rgb(244,244,244)",
+          "fontSize": 11
+        },
+        {
+          "ratio": 2.32,
+          "need": 4.5,
+          "text": "Welcome To Our Website",
+          "color": "rgb(170, 170, 170)",
+          "background": "rgb(255,255,255)",
+          "fontSize": 18
+        },
+        {
+          "ratio": 2.32,
+          "need": 4.5,
+          "text": "Welcome To Our Website",
+          "color": "rgb(170, 170, 170)",
+          "background": "rgb(255,255,255)",
+          "fontSize": 18
+        }
+      ]
+    },
+    {
+      "id": "tap_targets",
+      "title": "Tap targets at least 44px",
+      "status": "fail",
+      "weight": 8,
+      "scope": "mobile 390px",
+      "limit": "Visible interactive elements only. Off-screen and hidden controls are skipped.",
+      "automated": true,
+      "evidence": "6 of 6 visible controls are under 44px, smallest \"Home\" at 29x14px.",
+      "small": [
+        {
+          "w": 29,
+          "h": 14,
+          "label": "Home"
+        },
+        {
+          "w": 42,
+          "h": 14,
+          "label": "Services"
+        },
+        {
+          "w": 45,
+          "h": 14,
+          "label": "About Us"
+        },
+        {
+          "w": 38,
+          "h": 14,
+          "label": "Contact"
+        },
+        {
+          "w": 61,
+          "h": 14,
+          "label": "Testimonials"
+        },
+        {
+          "w": 97,
+          "h": 12,
+          "label": "Send us a message"
+        }
+      ]
+    },
+    {
+      "id": "image_alt_text",
+      "title": "Images have alt text",
+      "status": "fail",
+      "weight": 8,
+      "scope": "DOM",
+      "limit": "Presence and non-emptiness only. Cannot tell whether the alt text is accurate.",
+      "automated": true,
+      "evidence": "2 of 2 visible image(s) have no alt text (e.g. gif;base64,R0lGODlhAQABAIAAAMLCwgAAACwAAAAAAQABAAA, gif;base64,R0lGODlhAQABAIAAAMLCwgAAACwAAAAAAQABAAA).",
+      "missing": [
+        "gif;base64,R0lGODlhAQABAIAAAMLCwgAAACwAAAAAAQABAAA",
+        "gif;base64,R0lGODlhAQABAIAAAMLCwgAAACwAAAAAAQABAAA"
+      ]
+    },
+    {
+      "id": "heading_structure",
+      "title": "One h1, no skipped heading levels",
+      "status": "fail",
+      "weight": 6,
+      "scope": "DOM",
+      "limit": "Structural only. Says nothing about whether the headings are good.",
+      "automated": true,
+      "evidence": "Heading outline is broken: 2 h1 elements; h1 is followed by h3.",
+      "headings": [
+        {
+          "level": 1,
+          "text": "Harbor & Vine Plumbing"
+        },
+        {
+          "level": 1,
+          "text": "Welcome To Our Website"
+        },
+        {
+          "level": 3,
+          "text": "Our Services"
+        },
+        {
+          "level": 3,
+          "text": "What Our Customers Say"
+        },
+        {
+          "level": 3,
+          "text": "Contact Us"
+        }
+      ]
+    },
+    {
+      "id": "viewport_meta",
+      "title": "Responsive viewport declared",
+      "status": "fail",
+      "weight": 6,
+      "scope": "DOM",
+      "limit": "Presence of a width=device-width viewport meta tag.",
+      "automated": true,
+      "evidence": "No viewport meta tag, so phones render the page at desktop width and zoom out."
+    },
+    {
+      "id": "title_and_description",
+      "title": "Page title and meta description",
+      "status": "fail",
+      "weight": 6,
+      "scope": "DOM",
+      "limit": "Length and presence. Not a judgment of SEO quality.",
+      "automated": true,
+      "evidence": "title is only 8 characters; no meta description.",
+      "page_title": "Plumbing",
+      "meta_description": ""
+    },
+    {
+      "id": "lang_declared",
+      "title": "Document language declared",
+      "status": "fail",
+      "weight": 4,
+      "scope": "DOM",
+      "limit": "Presence of a non-empty html[lang].",
+      "automated": true,
+      "evidence": "No lang attribute on <html>, so screen readers guess the pronunciation."
+    },
+    {
+      "id": "no_broken_links",
+      "title": "No broken links",
+      "status": "skipped",
+      "weight": 8,
+      "scope": "network",
+      "limit": "At most 12 links probed, HEAD then GET, 8s timeout each. Sites that block bots can show as unreachable rather than broken.",
+      "automated": true,
+      "evidence": "No external links found to probe."
+    },
+    {
+      "id": "page_weight",
+      "title": "Page weight under 600KB",
+      "status": "skipped",
+      "weight": 4,
+      "scope": "network",
+      "limit": "Summed from Content-Length headers on a single cold load. Streamed or chunked responses without that header are not counted, so this is a floor, not a total.",
+      "automated": true,
+      "evidence": "No response carried a Content-Length header, so transfer size could not be measured."
+    },
+    {
+      "id": "render_speed",
+      "title": "DOMContentLoaded under 2000ms",
+      "status": "pass",
+      "weight": 4,
+      "scope": "network",
+      "limit": "One cold load on this machine, unthrottled. Not a field measurement and not Core Web Vitals.",
+      "automated": true,
+      "evidence": "DOMContentLoaded at 45ms, under the 2000ms budget."
+    },
+    {
+      "id": "copy_persuades",
+      "title": "Copy makes the offer clear",
+      "status": "skipped",
+      "weight": 0,
+      "scope": "human",
+      "limit": "A person has to read it. ProofRun does not score this.",
+      "automated": false,
+      "evidence": "Not automated. A person has to read the page."
+    },
+    {
+      "id": "brand_accuracy",
+      "title": "Business facts are accurate",
+      "status": "skipped",
+      "weight": 0,
+      "scope": "human",
+      "limit": "Only the business owner can confirm services, hours and service area.",
+      "automated": false,
+      "evidence": "Not automated. Only the business owner can confirm these facts."
+    }
+  ],
+  "audit": {
+    "business": {
+      "name": "Harbor & Vine Plumbing",
+      "what_they_do": "Residential plumbing — drain cleaning, water heaters, repiping, slab leaks, sewer camera, emergency burst pipe",
+      "service_area": "San Diego",
+      "phone": "(619) 555-0142",
+      "primary_conversion_goal": "phone_call"
+    },
+    "findings": [
+      {
+        "id": "F1",
+        "title": "Phone number is not a tappable tel: link",
+        "category": "conversion",
+        "severity": "high",
+        "evidence": "automated_check: click_to_call — \"A phone number appears as plain text ('(619) 555-0142') but is not a tel: link, so tapping it on a phone does nothing.\"",
+        "evidence_source": "automated_check",
+        "confidence": "high",
+        "confidence_reason": "The check directly confirms the number exists as text but lacks the tel: protocol. Mobile users must memorize or copy-paste the number to call — a step many will not take.",
+        "business_impact": "Every mobile visitor who wants to call hits a dead tap. For an emergency plumber, this is the single biggest leak: the moment of highest intent (burst pipe, no hot water) is exactly when someone is on a phone and least willing to transcribe digits.",
+        "fix": "Wrap the number in <a href=\"tel:+16195550142\">(619) 555-0142</a> everywhere it appears — header, body, footer."
+      },
+      {
+        "id": "F2",
+        "title": "No viewport meta tag — mobile renders as zoomed-out desktop",
+        "category": "mobile",
+        "severity": "high",
+        "evidence": "automated_check: viewport_meta — \"No viewport meta tag, so phones render the page at desktop width and zoom out.\"",
+        "evidence_source": "automated_check",
+        "confidence": "high",
+        "confidence_reason": "The check is binary: the tag is absent. Without it, the 390px mobile viewport shows a 980px-wide page shrunk to fit, making the phone number, hours, and navigation tiny and unreadable without pinch-zoom.",
+        "business_impact": "Mobile visitors (likely >60% for local search) land on a page they cannot read. They leave before they even see the phone number. This compounds F1: even if the number were a link, it would be too small to hit reliably.",
+        "fix": "Add <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> to <head>."
+      },
+      {
+        "id": "F3",
+        "title": "All tap targets under 44×44px — navigation and CTAs too small for thumbs",
+        "category": "mobile",
+        "severity": "high",
+        "evidence": "automated_check: tap_targets — \"6 of 6 visible controls are under 44px, smallest 'Home' at 29x14px.\"",
+        "evidence_source": "automated_check",
+        "confidence": "high",
+        "confidence_reason": "The check measured every visible interactive element. All six — the primary navigation — fail the 44px minimum. No manual testing needed to confirm the defect.",
+        "business_impact": "The 'Contact' link that passes cta_above_fold is geometrically present but physically untappable. A thumb covers the whole nav bar. Mis-taps send users to wrong pages or nowhere, increasing bounce before a call happens.",
+        "fix": "Increase padding/line-height on nav links and the Contact CTA to ≥44×44px. Use a mobile-first nav pattern (hamburger or stacked buttons) with generous hit areas."
+      },
+      {
+        "id": "F4",
+        "title": "Stale \"Site last updated March 2011\" signal undermines trust for emergency work",
+        "category": "trust",
+        "severity": "medium",
+        "evidence": "inference: Page text footer reads \"Site last updated March 2011.\" Today is 2026-10-28 — over 15 years stale. Business context says \"Serving San Diego since 1987\" and \"Emergency service available.\"",
+        "evidence_source": "inference",
+        "confidence": "medium",
+        "confidence_reason": "Would rise to high with a quick owner confirmation that the site content (services, hours, license) is current. The date itself is visible in the provided page text.",
+        "business_impact": "A homeowner with a burst pipe at 10 PM judges credibility in seconds. A 2011 timestamp suggests the business may be closed, the number dead, or the emergency promise empty. They call the next listing instead.",
+        "fix": "Remove the hard-coded \"Site last updated\" line or replace it with a dynamic \"Content reviewed <current year>\" if the info is current. Add a recent Google review or job photo with a 2024-2025 date."
+      },
+      {
+        "id": "F5",
+        "title": "Title tag is only \"Plumbing\" (8 chars) and no meta description — weak search snippet",
+        "category": "accessibility",
+        "severity": "medium",
+        "evidence": "automated_check: title_and_description — \"title is only 8 characters; no meta description.\"",
+        "evidence_source": "automated_check",
+        "confidence": "high",
+        "confidence_reason": "The check measures length and presence directly. DOM summary confirms title=\"Plumbing\" and metaDescription=\"\".",
+        "business_impact": "In Google Maps / local pack results, the snippet shows \"Plumbing\" with no descriptive line. Searchers see no location, no emergency hint, no \"family owned since 1987.\" Click-through drops, so fewer people ever reach the page to call.",
+        "fix": "Title: \"Harbor & Vine Plumbing | Emergency & Repiping | San Diego, CA\" (≈60 chars). Meta description: \"Family-owned since 1987. Licensed, bonded, insured. Drain cleaning, water heaters, slab leaks, 24/7 emergency. Call (619) 555-0142.\""
+      },
+      {
+        "id": "F6",
+        "title": "16 text elements below WCAG AA contrast — phone number and hours hard to read",
+        "category": "accessibility",
+        "severity": "medium",
+        "evidence": "automated_check: text_contrast — \"16 of 56 sampled text element(s) below WCAG AA. Worst is 2.13:1 where 4.5:1 is required ('Copyright 1998-2024 Harbor & Vine Plumbing. All rights reser').\"",
+        "evidence_source": "automated_check",
+        "confidence": "medium",
+        "confidence_reason": "The check sampled 56 elements and computed contrast against opaque backgrounds. It cannot measure text over images/gradients (reported as unmeasurable). The worst offender is the copyright line, but body copy and the phone number may also be low-contrast.",
+        "business_impact": "Older homeowners (core plumbing demographic) struggle to read the number, hours, or address on a bright screen. They give up or mis-dial. The copyright line is the least important text but signals a systemic contrast problem.",
+        "fix": "Audit the color palette: ensure body text ≥4.5:1, large text (≥18px) ≥3:1. Darken gray body copy or lighten the background. Test the phone number line specifically."
+      },
+      {
+        "id": "F7",
+        "title": "Broken heading structure (two H1s, jump to H3) — hurts screen-reader users and SEO",
+        "category": "accessibility",
+        "severity": "low",
+        "evidence": "automated_check: heading_structure — \"Heading outline is broken: 2 h1 elements; h1 is followed by h3.\" DOM summary shows H1: \"Harbor & Vine Plumbing\", H1: \"Welcome To Our Website\", then H3: \"Our Services\", \"What Our Customers Say\", \"Contact Us\".",
+        "evidence_source": "automated_check",
+        "confidence": "high",
+        "confidence_reason": "The check and DOM summary agree on the exact heading tree. No ambiguity.",
+        "business_impact": "Screen-reader users (some of whom are homeowners with disabilities) cannot navigate by heading hierarchy. Google may misunderstand page topic. Indirectly reduces calls from accessibility-reliant users and organic search.",
+        "fix": "Single H1: \"Harbor & Vine Plumbing — San Diego Plumbing Since 1987\". H2 for major sections: \"Our Services\", \"What Our Customers Say\", \"Contact Us\". Remove the second H1."
+      },
+      {
+        "id": "F8",
+        "title": "Two images have no alt text — minor accessibility gap",
+        "category": "accessibility",
+        "severity": "low",
+        "evidence": "automated_check: image_alt_text — \"2 of 2 visible image(s) have no alt text (e.g. gif;base64,R0lGODlhAQABAIAAAMLCwgAAACwAAAAAAQABAAA, gif;base64,R0lGODlhAQABAIAAAMLCwgAAACwAAAAAAQABAAA).\"",
+        "evidence_source": "automated_check",
+        "confidence": "high",
+        "confidence_reason": "The check found two base64-encoded GIFs (likely spacers or tracking pixels) with empty alt. Presence/emptiness is binary.",
+        "business_impact": "Negligible for calls. Only matters if images convey content (badges, license photos, truck wrap). These appear to be decorative/spacers.",
+        "fix": "Add alt=\"\" to decorative images. If either image is a trust badge (license, BBB, manufacturer), add descriptive alt text."
+      }
+    ],
+    "overall": {
+      "verdict": "The site has strong trust signals (35+ years, family-owned, licensed, testimonials) but three mobile-first technical failures — no tel: link, no viewport meta, undersized tap targets — block the majority of high-intent mobile visitors from calling. A stale 2011 timestamp erodes the trust the copy builds. Fix the top three and update the date; the rest are polish.",
+      "biggest_opportunity": "Add tel: links and the viewport tag today. That alone makes the existing traffic callable on mobile.",
+      "redesign_brief": "Lead with the phone number as a prominent, tappable button in a sticky header: \"Call (619) 555-0142 — 24/7 Emergency\". Prove with the two testimonials, the 1987 start date, and the license/bonded/insured line — all above the fold. Cut the \"Welcome To Our Website\" H1, the 2011 timestamp, the base64 spacer images, and the gray-on-gray copyright line. Make the nav a mobile-first stack of three fat buttons: Call, Services, Contact. Ensure every text element hits 4.5:1 contrast. Title and meta description must sell the click in search results."
+    }
+  },
+  "plan": {
+    "positioning": "Harbor & Vine Plumbing is the San Diego family plumber you call when the pipe bursts at 10 PM — licensed, bonded, insured, and answering the phone since 1987.",
+    "primary_cta": "Call (619) 555-0142 — tel: link in sticky header, repeated in footer, both ≥44×44px tap targets",
+    "secondary_cta": "None. Phone call is the only conversion.",
+    "sections": [
+      {
+        "name": "Sticky Header / Above Fold",
+        "purpose": "Answer F1, F3, F4, F5, F7 — make the phone number immediately tappable, readable, and trustworthy on mobile; replace stale 2011 signal with live trust badges; fix heading hierarchy.",
+        "content_notes": "Single H1: 'Harbor & Vine Plumbing — San Diego Plumbing Since 1987'. No 'Welcome To Our Website' H1. Prominent button: 'Call (619) 555-0142 — 24/7 Emergency' with href='tel:+16195550142', minimum 44×44px, high contrast. Trust line beneath: 'Family-owned & operated • Second generation • Licensed, bonded, insured • CA license on request'. Service area tag: 'Serving all of San Diego'.",
+        "answers_finding_ids": [
+          "F1",
+          "F3",
+          "F4",
+          "F5",
+          "F7"
+        ]
+      },
+      {
+        "name": "Services",
+        "purpose": "Answer F7 (heading structure) and close the sale by listing every verified capability so a homeowner knows we handle their exact problem.",
+        "content_notes": "H2: 'Our Services'. Six items, each one line: 1) Drain cleaning & hydro jetting 2) Water heater repair & replacement 3) Repiping — copper & PEX 4) Slab leak detection 5) Sewer camera inspection 6) Emergency burst pipe repair. No marketing adjectives. No services not in verified context.",
+        "answers_finding_ids": [
+          "F7"
+        ]
+      },
+      {
+        "name": "Proof / Trust",
+        "purpose": "Answer F4 (replace stale date with living proof) and close the sale with social proof and credentials.",
+        "content_notes": "H2: 'What Our Customers Say'. Two testimonials (content not in verified context — use placeholder note: 'Insert two real customer quotes with first name, neighborhood, date 2024-2025'). Then trust block: 'Family-owned since 1987. Ray Vine, second-generation owner. Fully licensed, bonded, and insured. California contractor license number on request.'",
+        "answers_finding_ids": [
+          "F4"
+        ]
+      },
+      {
+        "name": "Service Area",
+        "purpose": "Close the sale — confirm the searcher is in our zone.",
+        "content_notes": "H2: 'Service Area'. One line: 'We serve all of San Diego — coastal, inland, and surrounding communities.'",
+        "answers_finding_ids": []
+      },
+      {
+        "name": "Contact / Footer",
+        "purpose": "Answer F1, F3, F4, F7 — repeat tappable phone, remove 2011 timestamp, fix heading, ensure contrast.",
+        "content_notes": "H2: 'Contact Us'. Large tel: button: 'Call (619) 555-0142' (same tel href, ≥44×44px). Plain-text fallback: '(619) 555-0142'. No email (none found). No contact form. No 'Site last updated March 2011'. Copyright line: '© 2025 Harbor & Vine Plumbing. All rights reserved.' or 'Content reviewed 2025.' Body text contrast ≥4.5:1.",
+        "answers_finding_ids": [
+          "F1",
+          "F3",
+          "F4",
+          "F7"
+        ]
+      },
+      {
+        "name": "SEO Metadata (invisible to visitor, required for search)",
+        "purpose": "Answer F5 — win the click in Google Maps / local pack.",
+        "content_notes": "Title: 'Harbor & Vine Plumbing | Emergency & Repiping | San Diego, CA' (~60 chars). Meta description: 'Family-owned since 1987. Licensed, bonded, insured. Drain cleaning, water heaters, slab leaks, 24/7 emergency. Call (619) 555-0142.'",
+        "answers_finding_ids": [
+          "F5"
+        ]
+      },
+      {
+        "name": "Technical / Accessibility Implementation Notes",
+        "purpose": "Answer F2, F3, F6, F8 — the non-content fixes that make the content usable.",
+        "content_notes": "Add <meta name='viewport' content='width=device-width, initial-scale=1'> (F2). All interactive elements (nav links, CTA buttons, tel links) minimum 44×44px with generous padding (F3). Full color audit: body text ≥4.5:1, large text (≥18px) ≥3:1 — darken gray copy or lighten background; test phone number line specifically (F6). Two base64 GIFs: add alt='' if decorative; if either is a trust badge (license, BBB, manufacturer), add descriptive alt (F8). Single H1, then H2s only (F7). Page weight <600KB, first render <2s on cold 4G.",
+        "answers_finding_ids": [
+          "F2",
+          "F3",
+          "F6",
+          "F8"
+        ]
+      }
+    ],
+    "must_not_claim": [
+      "24/7 emergency — verified context says 'emergency service available' but not explicit 24/7",
+      "Same-day or response-time guarantees",
+      "Financing or payment plans",
+      "BBB rating, Angie's List, HomeAdvisor or other third-party badges",
+      "Specific California contractor license number (only 'on request')",
+      "Number of trucks, technicians, or crew size",
+      "Warranty periods on work",
+      "Eco-friendly / green plumbing claims",
+      "Commercial / multi-family service (context says residential)",
+      "Service outside San Diego proper",
+      "Email contact (none found)",
+      "Online booking or scheduling",
+      "Testimonial content (audit confirms two exist but text not provided)"
+    ],
+    "design_direction": "Mobile-first, high-contrast, utilitarian. Sticky header with fat call button. Three-button mobile nav stack: Call | Services | Contact. No gradients, no hero images, no animations, no chat widgets. Type scale: H1 ~28px, H2 ~22px, body ~18px, all ≥4.5:1 contrast. Color palette: navy/white/amber accent — trust colors, not marketing colors. Photos only if real: Ray Vine, truck wrap, job site (slab leak, water heater) with 2024-2025 EXIF dates. No stock photography."
+  },
+  "verification": {
+    "outcome": "passed",
+    "attempts": 1,
+    "cap": 3,
+    "comparison": {
+      "before": 33,
+      "after": 100,
+      "delta": 67,
+      "comparable_count": 10,
+      "fixed": [
+        "Tappable phone number",
+        "Text contrast meets WCAG AA",
+        "Tap targets at least 44px",
+        "One h1, no skipped heading levels",
+        "Responsive viewport declared",
+        "Page title and meta description",
+        "Document language declared"
+      ],
+      "broke": [],
+      "still_failing": [],
+      "held": 3,
+      "excluded": [
+        {
+          "id": "image_alt_text",
+          "title": "Images have alt text",
+          "reason": "skipped on the rebuild: Page has no images."
+        },
+        {
+          "id": "no_broken_links",
+          "title": "No broken links",
+          "reason": "skipped on both runs: No external links found to probe."
+        },
+        {
+          "id": "page_weight",
+          "title": "Page weight under 600KB",
+          "reason": "skipped on the original: No response carried a Content-Length header, so transfer size could not be measured."
+        }
+      ],
+      "basis": "10 check(s) produced a result on both runs and form the delta. 3 were excluded."
+    },
+    "summary": "The page passed all automated checks after one repair attempt, with scores improving from 30 (3 passed, 8 failed) to 100 (11 passed, 0 failed).",
+    "improved": [
+      "score",
+      "passed checks",
+      "failed checks"
+    ],
+    "still_failing": []
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "ok": false,
+      "score": 93,
+      "failing": [
+        "heading_structure"
+      ],
+      "error": null,
+      "screenshots": {
+        "desktop": "after-1-desktop.png",
+        "mobile": "after-1-mobile.png"
+      },
+      "file": "candidate-1.html"
+    },
+    {
+      "attempt": 2,
+      "ok": true,
+      "score": 100,
+      "failing": [],
+      "error": null,
+      "screenshots": {
+        "desktop": "after-2-desktop.png",
+        "mobile": "after-2-mobile.png"
+      },
+      "file": "candidate-2.html"
+    }
+  ],
+  "after_checks": [
+    {
+      "id": "sandbox_gate",
+      "title": "Page is self-contained and labelled",
+      "status": "pass",
+      "weight": 0,
+      "scope": "static analysis",
+      "limit": "Pattern matching over the document source. Catches external references, scripts and inline handlers; it is not a full HTML parser.",
+      "automated": true,
+      "evidence": "No scripts, no external references, no inline handlers, mockup banner present.",
+      "gate": true
+    },
+    {
+      "id": "mobile_no_overflow",
+      "title": "No horizontal scroll on mobile",
+      "status": "pass",
+      "weight": 12,
+      "scope": "mobile 390px",
+      "limit": "One viewport width only (390px). Not tested on tablet or at 320px.",
+      "automated": true,
+      "evidence": "Document width 390px fits the 390px viewport."
+    },
+    {
+      "id": "click_to_call",
+      "title": "Tappable phone number",
+      "status": "pass",
+      "weight": 12,
+      "scope": "DOM",
+      "limit": "Checks that a tel: link exists and is reachable, not that the number is correct.",
+      "automated": true,
+      "evidence": "2 tel: link(s) found, first is tel:+16195550142."
+    },
+    {
+      "id": "cta_above_fold",
+      "title": "Call to action above the fold",
+      "status": "pass",
+      "weight": 10,
+      "scope": "mobile 390px",
+      "limit": "Geometric only: a link or button intersecting the first 844px. Does not judge whether the wording persuades.",
+      "automated": true,
+      "evidence": "2 action(s) in the first screen, e.g. \"Call (619) 555-0142 — Emergency Service\".",
+      "ctas": [
+        {
+          "text": "Call (619) 555-0142 — Emergency Service",
+          "href": "tel:+16195550142",
+          "top": 63
+        },
+        {
+          "text": "Contact Us",
+          "href": "#contact",
+          "top": 312
+        }
+      ]
+    },
+    {
+      "id": "text_contrast",
+      "title": "Text contrast meets WCAG AA",
+      "status": "pass",
+      "weight": 12,
+      "scope": "desktop + mobile",
+      "limit": "Computed foreground vs nearest opaque ancestor background. Text over images or gradients is reported as unmeasurable, not as a pass.",
+      "automated": true,
+      "evidence": "50 text element(s) sampled, all at or above WCAG AA."
+    },
+    {
+      "id": "tap_targets",
+      "title": "Tap targets at least 44px",
+      "status": "pass",
+      "weight": 8,
+      "scope": "mobile 390px",
+      "limit": "Visible interactive elements only. Off-screen and hidden controls are skipped.",
+      "automated": true,
+      "evidence": "All 5 visible controls are at least 44px on both axes."
+    },
+    {
+      "id": "image_alt_text",
+      "title": "Images have alt text",
+      "status": "skipped",
+      "weight": 8,
+      "scope": "DOM",
+      "limit": "Presence and non-emptiness only. Cannot tell whether the alt text is accurate.",
+      "automated": true,
+      "evidence": "Page has no images."
+    },
+    {
+      "id": "heading_structure",
+      "title": "One h1, no skipped heading levels",
+      "status": "pass",
+      "weight": 6,
+      "scope": "DOM",
+      "limit": "Structural only. Says nothing about whether the headings are good.",
+      "automated": true,
+      "evidence": "Exactly one h1 (\"Harbor & Vine Plumbing\") and no skipped levels across 5 heading(s)."
+    },
+    {
+      "id": "viewport_meta",
+      "title": "Responsive viewport declared",
+      "status": "pass",
+      "weight": 6,
+      "scope": "DOM",
+      "limit": "Presence of a width=device-width viewport meta tag.",
+      "automated": true,
+      "evidence": "Viewport meta present: \"width=device-width, initial-scale=1\"."
+    },
+    {
+      "id": "title_and_description",
+      "title": "Page title and meta description",
+      "status": "pass",
+      "weight": 6,
+      "scope": "DOM",
+      "limit": "Length and presence. Not a judgment of SEO quality.",
+      "automated": true,
+      "evidence": "Title 61 chars, meta description 144 chars."
+    },
+    {
+      "id": "lang_declared",
+      "title": "Document language declared",
+      "status": "pass",
+      "weight": 4,
+      "scope": "DOM",
+      "limit": "Presence of a non-empty html[lang].",
+      "automated": true,
+      "evidence": "html[lang=\"en\"]."
+    },
+    {
+      "id": "no_broken_links",
+      "title": "No broken links",
+      "status": "skipped",
+      "weight": 8,
+      "scope": "network",
+      "limit": "At most 12 links probed, HEAD then GET, 8s timeout each. Sites that block bots can show as unreachable rather than broken.",
+      "automated": true,
+      "evidence": "No external links found to probe."
+    },
+    {
+      "id": "page_weight",
+      "title": "Page weight under 600KB",
+      "status": "pass",
+      "weight": 4,
+      "scope": "network",
+      "limit": "Summed from Content-Length headers on a single cold load. Streamed or chunked responses without that header are not counted, so this is a floor, not a total.",
+      "automated": true,
+      "evidence": "4.3KB measured across 1 response(s), under the 600KB budget."
+    },
+    {
+      "id": "render_speed",
+      "title": "DOMContentLoaded under 2000ms",
+      "status": "pass",
+      "weight": 4,
+      "scope": "network",
+      "limit": "One cold load on this machine, unthrottled. Not a field measurement and not Core Web Vitals.",
+      "automated": true,
+      "evidence": "DOMContentLoaded at 25ms, under the 2000ms budget."
+    },
+    {
+      "id": "copy_persuades",
+      "title": "Copy makes the offer clear",
+      "status": "skipped",
+      "weight": 0,
+      "scope": "human",
+      "limit": "A person has to read it. ProofRun does not score this.",
+      "automated": false,
+      "evidence": "Not automated. A person has to read the page."
+    },
+    {
+      "id": "brand_accuracy",
+      "title": "Business facts are accurate",
+      "status": "skipped",
+      "weight": 0,
+      "scope": "human",
+      "limit": "Only the business owner can confirm services, hours and service area.",
+      "automated": false,
+      "evidence": "Not automated. Only the business owner can confirm these facts."
+    }
+  ],
+  "draft": {
+    "subject": "Phone link not tappable",
+    "body": "Subject: Phone link not tappable\n\nHi,\n\nYour phone number is not a tappable tel: link (F1). It also lacks a viewport meta tag (F2) and the contact button is too small for thumbs (F3).\n\nEvery mobile visitor who wants to call hits a dead tap. That lost call can mean a missed emergency job, which costs you revenue.\n\nCheck this - I rebuilt your page so you can look at it instead of imagining it: http://localhost:3000/mockup/demo-harbor-vine-plumbing-example\n\nThat page is a concept mockup I made, not affiliated with Harbor & Vine Plumbing. It passed 11 of 13 automated checks, against 3 of 13 for the current page.\n\nPlease look at the page I already built and reply yes or no.\n\nBest,\n\nSam Reyes - 1234 Example St, Suite 100, San Diego, CA 92101\nYou are receiving this one-off note because your business is listed publicly in San Diego, CA.\nReply \"unsubscribe\" and I will remove you and never contact you again.",
+    "cited_finding_ids": [
+      "F1",
+      "F2",
+      "F3"
+    ],
+    "applied_learnings": [],
+    "word_count": 120,
+    "mockup_url": "http://localhost:3000/mockup/demo-harbor-vine-plumbing-example",
+    "drafted_at": "2026-10-28T23:01:06.570Z",
+    "learnings_available": 0
+  }
+}

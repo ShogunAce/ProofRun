@@ -249,6 +249,57 @@ export function scoreChecks(checks) {
   };
 }
 
+/**
+ * An honest before/after comparison.
+ *
+ * The two runs do not always score the same checks. A live site has outbound
+ * links to probe; a self-contained generated page has none, so `no_broken_links`
+ * is skipped there. Comparing two percentages with different denominators would
+ * overstate or understate the delta.
+ *
+ * So the headline delta is computed over the intersection: checks that actually
+ * produced a pass or a fail on BOTH runs. Each side's raw score is reported too,
+ * and every excluded check is named with the reason it dropped out.
+ */
+export function compareScores(beforeChecks, afterChecks) {
+  const byId = (list) => new Map(list.filter((c) => c.automated).map((c) => [c.id, c]));
+  const b = byId(beforeChecks);
+  const a = byId(afterChecks);
+
+  const comparable = [];
+  const excluded = [];
+  for (const [id, bc] of b) {
+    const ac = a.get(id);
+    if (!ac) { excluded.push({ id, title: bc.title, reason: 'not run on the rebuilt page' }); continue; }
+    if (bc.status === 'skipped' || ac.status === 'skipped') {
+      const which = bc.status === 'skipped' && ac.status === 'skipped' ? 'both runs' : bc.status === 'skipped' ? 'the original' : 'the rebuild';
+      excluded.push({ id, title: bc.title, reason: `skipped on ${which}: ${(bc.status === 'skipped' ? bc : ac).evidence}` });
+      continue;
+    }
+    comparable.push({ id, title: bc.title, weight: bc.weight, before: bc.status, after: ac.status });
+  }
+
+  const possible = comparable.reduce((s, c) => s + c.weight, 0);
+  const earned = (side) => comparable.filter((c) => c[side] === 'pass').reduce((s, c) => s + c.weight, 0);
+  const pct = (n) => (possible === 0 ? 0 : Math.round((n / possible) * 100));
+
+  const beforeScore = pct(earned('before'));
+  const afterScore = pct(earned('after'));
+
+  return {
+    before: beforeScore,
+    after: afterScore,
+    delta: afterScore - beforeScore,
+    comparable_count: comparable.length,
+    fixed: comparable.filter((c) => c.before === 'fail' && c.after === 'pass').map((c) => c.title),
+    broke: comparable.filter((c) => c.before === 'pass' && c.after === 'fail').map((c) => c.title),
+    still_failing: comparable.filter((c) => c.before === 'fail' && c.after === 'fail').map((c) => c.title),
+    held: comparable.filter((c) => c.before === 'pass' && c.after === 'pass').length,
+    excluded,
+    basis: `${comparable.length} check(s) produced a result on both runs and form the delta. ${excluded.length} were excluded.`,
+  };
+}
+
 // --------------------------------------------------------------------------
 // Link probing (Node side)
 // --------------------------------------------------------------------------
@@ -384,7 +435,9 @@ export function buildChecks({ desktop, mobile, transfer, linkResults }) {
     checks.push(
       problems.length === 0
         ? result('title_and_description', 'pass', `Title ${t.length} chars, meta description ${d.length} chars.`)
-        : result('title_and_description', 'fail', `${problems.join('; ')}.`, { title: t, description: d }),
+        // Note: these keys must not be named `title` — `extra` is spread over
+        // the result object and would overwrite the check's own title.
+        : result('title_and_description', 'fail', `${problems.join('; ')}.`, { page_title: t, meta_description: d }),
     );
   }
 
@@ -426,5 +479,12 @@ export function buildChecks({ desktop, mobile, transfer, linkResults }) {
 export function failuresForModel(checks) {
   return checks
     .filter((c) => c.automated && c.status === 'fail')
-    .map((c) => ({ id: c.id, requirement: c.title, what_went_wrong: c.evidence, details: c.offenders || c.failures || c.small || c.missing || c.broken || null }));
+    .map((c) => ({
+      id: c.id,
+      requirement: c.title,
+      what_went_wrong: c.evidence,
+      how_it_was_measured: c.limit,
+      viewport: c.scope,
+      details: c.offenders || c.failures || c.small || c.missing || c.broken || null,
+    }));
 }

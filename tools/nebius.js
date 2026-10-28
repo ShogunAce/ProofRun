@@ -99,6 +99,15 @@ function isWrongEndpoint(err) {
   return err?.status === 404 || err?.status === 403;
 }
 
+// Nemotron 3 models are reasoning models, and on Token Factory the `max_tokens`
+// budget is shared between the reasoning trace and the visible content. A long
+// prompt can produce 8-10K characters of reasoning, exhaust the budget, and
+// return finish_reason "length" with content: "" — a success response with
+// nothing in it. So a truncated-empty reply is retried with a larger budget
+// rather than reported as a model failure. See FEEDBACK.md.
+const MAX_TOKEN_CEILING = 32_000;
+const ESCALATION_FACTOR = 3;
+
 /**
  * One chat completion.
  *
@@ -169,6 +178,8 @@ export async function complete({
   let lastErr;
   for (const cand of candidates) {
     for (const baseURL of endpointsFor(cand)) {
+      let budget = body.max_tokens;
+      let escalations = 0;
       for (let attempt = 1; attempt <= attempts; attempt += 1) {
         const started = Date.now();
         try {
@@ -176,8 +187,12 @@ export async function complete({
             model: cand.model,
             messages,
             ...body,
+            max_tokens: budget,
           });
           goodEndpoint.set(cand.model, baseURL);
+          const choice = res.choices?.[0];
+          const text = choice?.message?.content ?? '';
+          const reasoning = choice?.message?.reasoning || choice?.message?.reasoning_content || '';
           const trace = {
             role,
             model: cand.model,
@@ -188,15 +203,30 @@ export async function complete({
             ms: Date.now() - started,
             usage: res.usage || null,
             structured: Boolean(jsonSchema),
+            finish_reason: choice?.finish_reason,
+            max_tokens: budget,
+            reasoning_chars: reasoning.length,
+            escalated_from: budget === body.max_tokens ? null : body.max_tokens,
             attempt,
             at: new Date().toISOString(),
           };
+
+          // Reasoning ate the budget. Give it more room and try again.
+          if (!text.trim() && choice?.finish_reason === 'length' && budget < MAX_TOKEN_CEILING && escalations < 2) {
+            const next = Math.min(MAX_TOKEN_CEILING, Math.round(budget * ESCALATION_FACTOR));
+            onTrace?.({
+              ...trace,
+              truncated: true,
+              note: `Empty content at finish_reason=length after ${reasoning.length} chars of reasoning. Raising max_tokens ${budget} -> ${next}.`,
+            });
+            budget = next;
+            escalations += 1;
+            attempt -= 1; // an escalation is not a failed network attempt
+            continue;
+          }
+
           onTrace?.(trace);
-          return {
-            text: res.choices?.[0]?.message?.content ?? '',
-            finishReason: res.choices?.[0]?.finish_reason,
-            trace,
-          };
+          return { text, reasoning, finishReason: choice?.finish_reason, trace };
         } catch (err) {
           lastErr = err;
           const detail = {

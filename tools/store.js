@@ -273,6 +273,11 @@ export function readRunJson(runId, name) {
   }
 }
 
+/** A file:// URL Playwright accepts on Windows as well as POSIX. */
+export function fileUrl(absPath) {
+  return `file://${path.resolve(absPath).replace(/\\/g, '/')}`;
+}
+
 export function mockupPath(prospectId, attempt = 'final') {
   ensure(paths.mockups);
   return path.join(paths.mockups, `${prospectId}-${attempt}.html`);
