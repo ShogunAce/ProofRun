@@ -68,6 +68,7 @@ retired model ID before a run, not during one.
 | `node scripts/try-phase1.js <url>` | Audit one real site on the console: capture → checks → structured audit |
 | `node scripts/try-phase2.js` | The whole loop on the console, demo mode. Add `--live <niche> <city>` for the real thing |
 | `node scripts/try-memory.js` | **Proves memory changes the next draft**, and exits non-zero if it does not |
+| `node scripts/try-limits.js` | Exercises every rate-limit gate and exits non-zero on a wrong decision. No model calls |
 
 ### Demo mode vs live mode
 
@@ -339,6 +340,14 @@ Every value lives in `.env` (see [`.env.example`](.env.example)) or `config/`.
 | `PROOFRUN_MODE` | `demo` | `demo` or `live` |
 | `PROOFRUN_MAX_RETRIES` | `3` | Repair attempts before failing open |
 | `PROOFRUN_NIGHTLY_BATCH` | `4` | Prospects per nightly run |
+| `PROOFRUN_RATE_LIMIT` | `on` | `off` removes every limit below. Use it locally |
+| `PROOFRUN_MAX_CONCURRENT_RUNS` | `2` | Runs in flight at once, per instance |
+| `PROOFRUN_RUNS_PER_CLIENT` | `3` | Runs per client IP per window |
+| `PROOFRUN_RUNS_PER_CLIENT_WINDOW_MIN` | `10` | That window, in minutes |
+| `PROOFRUN_RUNS_GLOBAL` | `20` | Runs per instance per window, all clients |
+| `PROOFRUN_RUNS_GLOBAL_WINDOW_MIN` | `60` | That window, in minutes |
+| `PROOFRUN_CHEAP_PER_CLIENT` / `_WINDOW_MIN` | `20` / `10` | Redraft and brief rebuild |
+| `TRUST_PROXY_HOPS` | `1` | Proxies in front. `0` when there are none |
 | `SANDBOX_MODE` | `subprocess` | `subprocess` or `openshell` |
 | `PUBLIC_BASE_URL` | `http://localhost:3000` | Used in mockup preview links |
 
@@ -380,12 +389,39 @@ Three flags are load-bearing:
   work would stall. This keeps it running.
 - `--timeout=3600` — the SSE stream is a long-lived request. The default 300s
   would cut the Live Run feed off mid-run.
-- `--max-instances=3` — the endpoint is unauthenticated, so this caps how much
-  anyone pressing "Run now" can cost you.
+- `--max-instances=3` — the endpoint is unauthenticated, so together with the
+  in-process limits below this bounds what anyone pressing "Run now" can cost
+  you. It is the only one of the two that is a hard ceiling.
 
 **Cloud Run's filesystem is ephemeral**, so `memory/` resets on a cold start.
 That is fine for a public demo where every visitor starts their own run, and
 wrong for real use — mount a GCS volume or use a host with a persistent disk.
+
+#### Rate limits on a public URL
+
+A run is not a cheap request: two Chromium launches, a ~327MB peak, and 30-65k
+Nebius tokens. [`web/rate-limit.js`](web/rate-limit.js) gates the routes that
+spend money, in order of how hard each gate is to evade:
+
+| Gate | Default | What it protects |
+|---|---|---|
+| Concurrent runs | 2 | Memory and CPU. Counted from the runner's own state, so a run that throws cannot leak a slot |
+| Per client IP | 3 per 10 min | Stops one visitor clicking Start repeatedly |
+| Global | 20 per 60 min | The actual spend ceiling, and the only gate that holds when IPs rotate |
+| Redraft, brief rebuild | 20 per 10 min | One model call each, so a looser budget of their own |
+
+Denials return `429` with a `Retry-After` header and a plain-English reason,
+which the UI shows as-is. `/api/meta` reports the limits and current usage so a
+visitor can see them before hitting one. The approval route is deliberately
+**not** limited: it makes no model calls, and it is the one interaction a judge
+must be able to repeat freely.
+
+Being honest about the weakness: this state is in process memory. Every cold
+start resets the windows, and each instance keeps its own, so "20 per hour" is
+really per instance — which is why `--max-instances` is what makes the total
+bounded. A shared counter would need Redis, and this project deliberately has
+no database. Set `PROOFRUN_RATE_LIMIT=off` locally, where the `try-*` scripts
+legitimately start runs back to back.
 
 ### Render
 

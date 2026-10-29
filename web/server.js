@@ -17,15 +17,32 @@ import { listSkills } from '../agent/core.js';
 import { getRun, listRuns, recordDecision, redraft, runProofRun, STEPS } from '../skills/proofrun/runner.js';
 import { buildMorningBrief, readTodaysBrief } from '../agent/brief.js';
 import { exportApproved } from '../agent/send-adapter.js';
+import { checkCheap, checkRun, limitsDescription, recordRun } from './rate-limit.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+
+// Behind Cloud Run the socket address is the load balancer, so the rate
+// limiter cannot tell clients apart without X-Forwarded-For. Express counts
+// hops from the right and treats the next address as the client, so 1 is
+// correct for a single front end: a client who sends their own
+// X-Forwarded-For adds entries to the left, where they are ignored. Set
+// TRUST_PROXY_HOPS=0 when running with no proxy in front.
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS ?? 1));
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(HERE, 'public'), { extensions: ['html'] }));
 
 const ok = (res, data) => res.json({ ok: true, ...data });
 const fail = (res, code, message, extra = {}) => res.status(code).json({ ok: false, error: message, ...extra });
+
+/** A denial from the rate limiter, with the header a well-behaved client reads. */
+const tooMany = (res, denial) => {
+  res.set('retry-after', String(denial.retryAfter));
+  return fail(res, 429, denial.message, { retry_after_seconds: denial.retryAfter, limit: denial.detail });
+};
+
+const runningCount = () => listRuns().filter((r) => r.state === 'running').length;
 
 // --------------------------------------------------------------------------
 // Config and self-description
@@ -51,6 +68,7 @@ app.get('/api/meta', (req, res) => {
     niches: niches.niches,
     defaultNiche: niches.default,
     skills: listSkills(),
+    limits: limitsDescription(runningCount()),
   });
 });
 
@@ -103,7 +121,13 @@ app.post('/api/runs', async (req, res) => {
     return fail(res, 400, 'NEBIUS_API_KEY is not set, so no model calls are possible.');
   }
 
+  // Checked after the cheap validation above so a misconfigured request does
+  // not consume someone's quota, and recorded only once the run exists.
+  const denial = checkRun({ req, runningCount: runningCount() });
+  if (denial) return tooMany(res, denial);
+
   const run = await runProofRun({ niche, city, mode: useMode });
+  recordRun(req);
   return ok(res, { runId: run.id, mode: run.mode });
 });
 
@@ -183,6 +207,8 @@ app.post('/api/prospects/:id/decision', async (req, res) => {
  * untouched, so the only thing that changed between versions is memory.
  */
 app.post('/api/prospects/:id/redraft', async (req, res) => {
+  const denial = checkCheap(req);
+  if (denial) return tooMany(res, denial);
   try {
     const out = await redraft(req.params.id);
     return ok(res, {
@@ -232,8 +258,13 @@ app.get('/api/memory/runs/:name', (req, res) => {
 // --------------------------------------------------------------------------
 
 app.get('/api/brief', async (req, res) => {
+  // Today's brief is cached on disk; only a rebuild costs a model call.
+  const regenerate = req.query.refresh === '1';
+  if (regenerate || !readTodaysBrief()) {
+    const denial = checkCheap(req);
+    if (denial) return tooMany(res, denial);
+  }
   try {
-    const regenerate = req.query.refresh === '1';
     const brief = regenerate ? await buildMorningBrief() : (readTodaysBrief() || await buildMorningBrief());
     return ok(res, { brief });
   } catch (err) {

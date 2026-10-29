@@ -2,6 +2,7 @@
 //   npm run check:env
 import fs from 'node:fs';
 import { env, paths, routing } from '../tools/config.js';
+import { limits } from '../web/rate-limit.js';
 
 const rows = [];
 const add = (name, ok, detail) => rows.push({ name, ok, detail });
@@ -16,6 +17,13 @@ add('TAVILY_API_KEY', Boolean(env.tavilyKey), env.tavilyKey ? 'set - live discov
 add('SANDBOX_MODE', true, env.sandboxMode);
 add('PROOFRUN_MODE', true, env.mode);
 add('PUBLIC_BASE_URL', true, env.publicBaseUrl);
+add(
+  'PROOFRUN_RATE_LIMIT',
+  true,
+  limits.enabled
+    ? `on - ${limits.concurrentRuns} concurrent, ${limits.runsPerClient}/client per ${limits.runsPerClientWindowMin}min, ${limits.runsGlobal} total per ${limits.runsGlobalWindowMin}min`
+    : 'off - no ceiling on model spend. Correct locally, wrong on a public URL',
+);
 add('memory/', fs.existsSync(paths.memory), paths.memory);
 add('config/voice.md', fs.existsSync(paths.p('config/voice.md')), 'fill this in with your own writing');
 

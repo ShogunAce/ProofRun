@@ -132,3 +132,27 @@ catches per-prospect failures and continues, so a job-level retry would re-audit
 prospects that already succeeded and write duplicate drafts. It exits non-zero
 only when every prospect in a batch failed verification, which is the only
 condition worth alerting on.
+
+**Rate limiting is three gates, not one, and the weakest is the per-IP one.**
+A public URL that starts a 65k-token run on a button press needs a ceiling.
+The obvious implementation — requests per IP — is the least useful of the
+three, because behind Cloud Run the IP comes from `X-Forwarded-For`, which a
+caller can pad. So the per-client window is treated as advisory (it exists to
+stop impatient clicking), and the gates that actually hold are a global window
+across all clients and a concurrency cap on runs in flight. The concurrency
+count is derived from the runner's own run state rather than a counter kept by
+the limiter, because a tally that is incremented on start and decremented on
+finish leaks a slot every time a run throws.
+
+**No Redis, so the limits are per instance and the README says so.** A shared
+counter is the correct implementation and it needs a datastore, which this
+project deliberately does not have. Rather than pretend, the limiter documents
+that cold starts reset the windows and that `--max-instances` is what makes the
+total bounded. The alternative — claiming a global ceiling that is really
+per-instance ×3 — is the kind of quiet inaccuracy this project is otherwise
+built to avoid.
+
+**The approval route is not rate limited.** It makes no model calls, only file
+writes, and it is the one interaction a judge needs to repeat freely to see the
+memory-changes-the-draft claim hold. Limiting it would cost nothing and risk
+the demo's most important moment.

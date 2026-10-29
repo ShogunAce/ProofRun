@@ -453,24 +453,32 @@ generation ~19–32s; Nano extraction ~11s, email draft ~40–63s.
 
 ## STILL OPEN
 
-Done since the last pass: `README.md`, `Dockerfile` (built and run end to end
-with the full loop passing inside the container), `render.yaml`, and
-`jobs/nebius-serverless-job.json`.
+Done since the last pass: `README.md`, `Dockerfile` (slimmed to Chromium only,
+3.72GB -> 1.33GB, built and run end to end with the full loop passing inside
+the container), `render.yaml`, `jobs/nebius-serverless-job.json`, the repo
+pushed public to [github.com/ShogunAce/ProofRun](https://github.com/ShogunAce/ProofRun),
+a Cloud Run deployment at `proofrun-107857618906.us-central1.run.app`, and
+rate limiting on the routes that spend tokens (`web/rate-limit.js`, verified by
+`node scripts/try-limits.js`).
 
-**Blocked — needs you:**
+**Blocked - needs you:**
 
-1. **Push the repo to GitHub.** The repository is committed locally with clean
-   history (no `.env`, no key-shaped strings, no live prospect data), but the
-   sandbox blocked creating a GitHub repo. One command:
-   `gh repo create ProofRun --public --source=. --remote=origin --push`
-2. **Deploy.** `render.yaml` is ready — connect the repo at
-   [render.com/new](https://dashboard.render.com/select-repo?type=blueprint),
-   then set `NEBIUS_API_KEY` and `TAVILY_API_KEY` in the dashboard. This needs
-   your Render login.
-3. **Record the demo video.** Walkthrough script is in the chat.
+1. **Set the Nebius key on the service.**
+   `gcloud run services update proofrun --project=pathfinder-engine --region=us-central1 --update-env-vars="NEBIUS_API_KEY=..."`
+   Recommended: set only this one. With `TAVILY_API_KEY` absent the public demo
+   offers demo mode only, so a stranger's click cannot search for or audit a
+   real business.
+2. **Make the URL public.**
+   `gcloud run services add-iam-policy-binding proofrun --project=pathfinder-engine --region=us-central1 --member=allUsers --role=roles/run.invoker`
+   The service currently returns 403 to anonymous callers.
+3. **Run the hosted demo once end to end before recording.** The loop is
+   verified inside the container and the service is verified responding, but a
+   full run over Cloud Run's SSE path with a live key has not been watched. The
+   thing to check is the Live Run feed staying connected for the whole run.
+4. **Record the demo video.** Walkthrough script is in the chat.
 
 **Before any real use:**
 
-4. **`config/voice.md` still holds the sample voice.** Replace it with three or
+5. **`config/voice.md` still holds the sample voice.** Replace it with three or
    four paragraphs of your own writing — it is what the drafts imitate.
-5. **`memory/profile.md` still holds demo data** (Sam Reyes, example address).
+6. **`memory/profile.md` still holds demo data** (Sam Reyes, example address).
