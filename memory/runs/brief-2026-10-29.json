@@ -1,8 +1,8 @@
 {
-  "date": "2026-10-28",
-  "generated_at": "2026-10-28T23:07:44.580Z",
+  "date": "2026-10-29",
+  "generated_at": "2026-10-29T04:29:49.016Z",
   "stats": {
-    "date": "2026-10-28",
+    "date": "2026-10-29",
     "total_prospects": 1,
     "touched_today": 1,
     "by_status": {
@@ -26,11 +26,11 @@
       "verification": "passed",
       "repair_attempts": 1,
       "still_failing": [],
-      "updated": "2026-10-28"
+      "updated": "2026-10-29"
     }
   ],
   "learnings": [],
-  "what_ran": "Ran 1 prospect today; status drafted; verification passed; repair attempts used 1; median delta 67.",
-  "needs_you": "Awaiting approval 1; approved 0; rejected 0; failed verification 0.",
-  "what_i_learned": "Learnings total 0; no new learnings recorded."
+  "what_ran": "overnight_prospecting_run",
+  "needs_you": "operator",
+  "what_i_learned": "briefing"
 }
