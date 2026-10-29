@@ -1,0 +1,79 @@
+{
+  "$schema": "https://docs.nebius.com/schemas/serverless-job.json",
+  "$note": "Nightly batch as a Nebius Serverless Job. The entrypoint is the same jobs/nightly.js the 'Run now' button drives through runProofRun(), so the scheduled and interactive paths cannot drift apart.",
+
+  "name": "proofrun-nightly",
+  "description": "Discover, audit, redesign, verify and draft for a batch of prospects overnight. Writes to file-based memory and generates the Morning Brief. Sends nothing.",
+
+  "container": {
+    "image": "ghcr.io/shogunace/proofrun:latest",
+    "$image_note": "Built from the repository Dockerfile, on mcr.microsoft.com/playwright which already carries Chromium and its system libraries.",
+    "command": ["node", "jobs/nightly.js"],
+    "args": ["--count", "4", "--mode", "live"],
+    "working_dir": "/app"
+  },
+
+  "resources": {
+    "cpu": 2,
+    "memory_gb": 4,
+    "$resources_note": "No GPU. Inference is served by Token Factory over the API; this container runs Playwright, which is the memory-hungry part. Chromium needs roughly 1GB per context and the batch runs them one at a time.",
+    "ephemeral_storage_gb": 8
+  },
+
+  "timeout_seconds": 3600,
+  "$timeout_note": "A verified run averages 135s in demo mode and 210s against a live site that used all three repair attempts. Four prospects plus the brief fits comfortably; the cap exists so a hung page cannot bill all night.",
+
+  "retry": {
+    "max_attempts": 1,
+    "$retry_note": "Deliberately 1. jobs/nightly.js already catches per-prospect failures and continues, so a job-level retry would re-audit prospects that already succeeded and write duplicate drafts."
+  },
+
+  "schedule": {
+    "cron": "0 7 * * *",
+    "timezone": "America/Los_Angeles",
+    "$schedule_note": "07:00 Pacific, so the Morning Brief is written before the operator starts work."
+  },
+
+  "environment": {
+    "PROOFRUN_MODE": "live",
+    "PROOFRUN_NIGHTLY_BATCH": "4",
+    "PROOFRUN_MAX_RETRIES": "3",
+    "NEBIUS_BASE_URL": "https://api.tokenfactory.nebius.com/v1",
+    "NEBIUS_REGIONAL_BASE_URL_TEMPLATE": "https://api.tokenfactory.{region}.nebius.com/v1",
+    "NEMOTRON_REASONING_MODEL": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "NEMOTRON_REASONING_REGION": "us-central1",
+    "NEMOTRON_BUILDER_MODEL": "nvidia/nemotron-3-super-120b-a12b",
+    "NEMOTRON_BUILDER_REGION": "us-central1",
+    "NEMOTRON_FAST_MODEL": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+    "NEMOTRON_FAST_REGION": "eu-north1",
+    "SANDBOX_MODE": "subprocess"
+  },
+
+  "secrets": [
+    { "name": "NEBIUS_API_KEY", "source": "nebius-secret-manager", "key": "proofrun/nebius-api-key" },
+    { "name": "TAVILY_API_KEY", "source": "nebius-secret-manager", "key": "proofrun/tavily-api-key" }
+  ],
+
+  "volumes": [
+    {
+      "name": "proofrun-memory",
+      "mount_path": "/app/memory",
+      "persistent": true,
+      "$volume_note": "File-based memory is the source of truth and must survive between runs. Without this, learnings.md resets nightly and the agent stops learning — the one thing this job exists to accumulate."
+    },
+    {
+      "name": "proofrun-artifacts",
+      "mount_path": "/app/data",
+      "persistent": true,
+      "$volume_note": "Screenshots, generated pages and run traces, so the Proof screen can render overnight runs the next morning."
+    }
+  ],
+
+  "observability": {
+    "stdout": "captured",
+    "alert_on_exit_code": [1],
+    "$alert_note": "jobs/nightly.js exits 1 only when every prospect in the batch failed verification, which is the condition worth waking someone for. A partial batch exits 0 and is reported in the Morning Brief."
+  },
+
+  "$safety_note": "This job has no send capability. agent/send-adapter.js throws if called, and no SMTP or email API client exists in the image. Everything it produces waits for a human on the Approve screen."
+}

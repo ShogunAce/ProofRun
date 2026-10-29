@@ -1,0 +1,11 @@
+node_modules
+.git
+.env
+.env.local
+*.log
+data/runs/*
+data/mockups/*
+data/exports
+memory/prospects/live-*
+.claude
+scratchpad

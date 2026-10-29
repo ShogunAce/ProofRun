@@ -1,0 +1,63 @@
+# One-click deploy to Render. Connect this repository and Render reads this file.
+#
+# Set NEBIUS_API_KEY (and TAVILY_API_KEY for live mode) in the dashboard; they
+# are marked sync:false here so they are never committed.
+#
+# Note the disk: ProofRun's memory is files, so without a persistent disk the
+# queue and learnings.md reset on every redeploy.
+services:
+  - type: web
+    name: proofrun
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: oregon
+    healthCheckPath: /api/health
+    autoDeploy: false
+
+    disk:
+      name: proofrun-data
+      mountPath: /app/memory
+      sizeGB: 1
+
+    envVars:
+      - key: NEBIUS_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+
+      - key: PORT
+        value: 3000
+      - key: PROOFRUN_MODE
+        value: demo
+      - key: PROOFRUN_MAX_RETRIES
+        value: 3
+      - key: PROOFRUN_NIGHTLY_BATCH
+        value: 4
+      - key: SANDBOX_MODE
+        value: subprocess
+
+      - key: NEBIUS_BASE_URL
+        value: https://api.tokenfactory.nebius.com/v1
+      - key: NEBIUS_REGIONAL_BASE_URL_TEMPLATE
+        value: https://api.tokenfactory.{region}.nebius.com/v1
+
+      - key: NEMOTRON_REASONING_MODEL
+        value: nvidia/Nemotron-3-Ultra-550b-a55b
+      - key: NEMOTRON_REASONING_REGION
+        value: us-central1
+      - key: NEMOTRON_BUILDER_MODEL
+        value: nvidia/nemotron-3-super-120b-a12b
+      - key: NEMOTRON_BUILDER_REGION
+        value: us-central1
+      - key: NEMOTRON_FAST_MODEL
+        value: nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B
+      - key: NEMOTRON_FAST_REGION
+        value: eu-north1
+
+      # Render supplies the external URL; mockup preview links use it.
+      - key: PUBLIC_BASE_URL
+        fromService:
+          type: web
+          name: proofrun
+          property: hostport
