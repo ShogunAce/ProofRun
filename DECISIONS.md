@@ -90,3 +90,45 @@ is committed.
 **Node, ESM, no build step.** Express plus static files. Playwright is already a
 Node dependency, so adding a bundler and a framework would add deploy risk for a
 six-screen UI with no client-side routing.
+
+## Phase 4 — ship
+
+**OpenShell was evaluated and not shipped; a three-layer sandbox was.** The
+OpenShell docs describe a gateway control plane plus per-sandbox YAML policy
+with kernel-level isolation, aimed at constraining coding agents like Claude
+Code or OpenCode that have broad filesystem and network reach. ProofRun's
+untrusted code is narrower than that by construction: one self-contained HTML
+document with no JavaScript and no network access, loaded in a headless browser
+we already launch ourselves. Standing up a gateway to contain a static document
+would have been architecture for the slide rather than for the threat, and the
+hackathon cut line put OpenShell below the retry loop and the Proof screen.
+
+What shipped instead is defence in depth sized to the actual risk: a static gate
+that rejects any script, external reference or inline handler before the file is
+written; network deny-all at load, with blocked requests logged; and a child
+process with a scrubbed environment holding no API keys, a 512MB heap cap and a
+wall-clock kill. `SANDBOX_MODE=openshell` exists as a documented adapter seam in
+`tools/sandbox.js` and throws rather than pretending to work.
+
+**The Docker base image is pinned to the exact Playwright version.** The image
+ships browser builds tied to its own release, and Playwright resolves a build
+number from the library version. `mcr.microsoft.com/playwright:v1.57.0-noble`
+with `playwright@1.64.1` resolved from `^1.57.0` built cleanly and then failed at
+`browserType.launch()` inside the container with "Executable doesn't exist at
+/ms-playwright/chromium_headless_shell-1248". Both are now pinned to 1.64.1, and
+the Dockerfile carries a comment saying why. This is the kind of failure that
+only appears when you actually run the artifact you intend to deploy, which is
+why the container was run end to end rather than just built.
+
+**Render was chosen for the hosted demo** over a plain Node host because the
+only awkward dependency is headless Chromium, and a Docker deploy from the
+Playwright base image removes that entirely. `render.yaml` declares a persistent
+disk mounted at `/app/memory`, because file-based memory is the source of truth
+and a stateless redeploy would wipe `learnings.md` — the one thing the product
+is supposed to accumulate.
+
+**The nightly Serverless Job retries zero times.** `jobs/nightly.js` already
+catches per-prospect failures and continues, so a job-level retry would re-audit
+prospects that already succeeded and write duplicate drafts. It exits non-zero
+only when every prospect in a batch failed verification, which is the only
+condition worth alerting on.

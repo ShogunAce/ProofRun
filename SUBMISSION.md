@@ -451,15 +451,26 @@ generation ~19–32s; Nano extraction ~11s, email draft ~40–63s.
 
 ---
 
-## STILL OPEN (not done yet — these are submission blockers)
+## STILL OPEN
 
-1. **`README.md` does not exist.** Required by the rules: setup steps, NVIDIA/
-   Nebius usage, model routing table, architecture.
-2. **No hosted demo URL.** The app runs locally only. Required for submission.
-3. **No Nebius Serverless Job definition.** `jobs/nightly.js` runs the batch and
-   "Run now" works, but `jobs/` has no job manifest yet.
-4. **No demo video.** Yours to record.
-5. **`config/voice.md` still holds the sample voice.** Replace it with three or
-   four paragraphs of your own writing before any real use — it is what the
-   drafts imitate.
-6. **`memory/profile.md` still holds demo data** (Sam Reyes, example address).
+Done since the last pass: `README.md`, `Dockerfile` (built and run end to end
+with the full loop passing inside the container), `render.yaml`, and
+`jobs/nebius-serverless-job.json`.
+
+**Blocked — needs you:**
+
+1. **Push the repo to GitHub.** The repository is committed locally with clean
+   history (no `.env`, no key-shaped strings, no live prospect data), but the
+   sandbox blocked creating a GitHub repo. One command:
+   `gh repo create ProofRun --public --source=. --remote=origin --push`
+2. **Deploy.** `render.yaml` is ready — connect the repo at
+   [render.com/new](https://dashboard.render.com/select-repo?type=blueprint),
+   then set `NEBIUS_API_KEY` and `TAVILY_API_KEY` in the dashboard. This needs
+   your Render login.
+3. **Record the demo video.** Walkthrough script is in the chat.
+
+**Before any real use:**
+
+4. **`config/voice.md` still holds the sample voice.** Replace it with three or
+   four paragraphs of your own writing — it is what the drafts imitate.
+5. **`memory/profile.md` still holds demo data** (Sam Reyes, example address).
