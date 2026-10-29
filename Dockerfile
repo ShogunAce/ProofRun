@@ -1,19 +1,21 @@
-# Playwright's own image, which already carries Chromium and the system
-# libraries it needs. Installing those on a plain node image is the single
-# fiddliest part of deploying anything that drives a headless browser.
+# ProofRun needs exactly one browser: Chromium, driven headlessly to capture
+# prospect sites and to verify the pages the model generates.
 #
-# This tag MUST match the playwright version pinned in package.json exactly.
-# The image ships the browser builds for its own release, and Playwright looks
-# for a build number tied to the library version — a mismatch fails at
+# Playwright's own base image is the easy route, but it ships Chromium, Firefox
+# AND WebKit and lands at 3.72GB — most of which is downloaded on every cold
+# start on a scale-to-zero host. Installing Chromium alone from the pinned
+# playwright package cuts that by roughly two thirds.
+#
+# Installing the browser from the same package that drives it also removes a
+# whole class of bug: with the base image, the image tag and the npm version
+# must match exactly, or the container builds cleanly and then dies at
 # browserType.launch() with "Executable doesn't exist at
-# /ms-playwright/chromium_headless_shell-<n>", long after the image builds
-# cleanly. package.json pins the exact version for this reason.
-FROM mcr.microsoft.com/playwright:v1.64.1-noble
+# /ms-playwright/chromium_headless_shell-<n>". Here they cannot disagree.
+FROM node:22-bookworm-slim
 
 ENV NODE_ENV=production \
     PORT=3000 \
-    # The browsers are already in the image; do not download them again.
-    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 WORKDIR /app
 
@@ -21,14 +23,20 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev --ignore-scripts
 
+# Chromium plus the system libraries it needs, and nothing else.
+RUN npx playwright install --with-deps --only-shell chromium \
+ && chmod -R a+rX /ms-playwright \
+ && rm -rf /var/lib/apt/lists/*
+
 COPY . .
 
 # Memory and artifacts are the source of truth. Mount volumes over these in
-# production (see jobs/nebius-serverless-job.json) or they reset on redeploy.
+# production or they reset on redeploy; on a scale-to-zero host they are
+# ephemeral by definition, which is fine for a public demo and not for real use.
 RUN mkdir -p data/runs data/mockups data/exports memory/prospects memory/runs \
- && chown -R pwuser:pwuser /app
+ && chown -R node:node /app
 
-USER pwuser
+USER node
 
 EXPOSE 3000
 

@@ -1,0 +1,18 @@
+# What NOT to upload to Cloud Build. Without this, gcloud falls back to
+# .gitignore, which would be mostly right but would still ship the local run
+# artifacts. Keys are excluded explicitly rather than by inheritance.
+.git
+.gitignore
+node_modules
+.env
+.env.local
+*.log
+data/runs
+data/mockups
+data/exports
+memory/prospects/live-*
+.claude
+scratchpad
+Dockerfile.*
+README.md
+SUBMISSION.md

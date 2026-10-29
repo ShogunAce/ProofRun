@@ -355,10 +355,44 @@ docker build -t proofrun .
 docker run -p 3000:3000 --env-file .env proofrun
 ```
 
-The image is built on Microsoft's Playwright base image, which already contains
-Chromium and its system dependencies. `render.yaml` is included for a one-click
-Render deploy; any host that runs a Docker container with ~1GB of memory will
-do. Headless Chromium is the only unusual requirement.
+The image installs Chromium only — not Playwright's full browser set — which
+keeps it at 1.33GB rather than 3.72GB. That matters on a scale-to-zero host,
+where image size is cold-start time.
+
+**Memory:** the whole loop, including the sandboxed verification browser, was
+measured peaking at **327MB** on a 512MB-capped container. 1GiB is comfortable.
+
+### Google Cloud Run (what the hosted demo runs on)
+
+```bash
+gcloud run deploy proofrun \
+  --source=. --region=us-central1 --port=3000 \
+  --memory=1Gi --cpu=1 --timeout=3600 --no-cpu-throttling \
+  --max-instances=3 --concurrency=10 --allow-unauthenticated \
+  --set-env-vars="PROOFRUN_MODE=demo,NEBIUS_BASE_URL=...,NEMOTRON_REASONING_MODEL=..."
+```
+
+Three flags are load-bearing:
+
+- `--no-cpu-throttling` — Cloud Run only allocates CPU while a request is in
+  flight by default. A ProofRun run continues in the background while the Live
+  Run screen holds an SSE connection, so if a viewer closes the tab mid-run the
+  work would stall. This keeps it running.
+- `--timeout=3600` — the SSE stream is a long-lived request. The default 300s
+  would cut the Live Run feed off mid-run.
+- `--max-instances=3` — the endpoint is unauthenticated, so this caps how much
+  anyone pressing "Run now" can cost you.
+
+**Cloud Run's filesystem is ephemeral**, so `memory/` resets on a cold start.
+That is fine for a public demo where every visitor starts their own run, and
+wrong for real use — mount a GCS volume or use a host with a persistent disk.
+
+### Render
+
+`render.yaml` is included for a one-click Blueprint deploy, and declares a 1GB
+persistent disk at `/app/memory` so learnings survive redeploys. Any host that
+runs a Docker container with ~1GB of memory will do; headless Chromium is the
+only unusual requirement.
 
 For the nightly batch as a Nebius Serverless Job, see
 [`jobs/nebius-serverless-job.json`](jobs/nebius-serverless-job.json).
