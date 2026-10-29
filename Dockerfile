@@ -1,7 +1,14 @@
 # Playwright's own image, which already carries Chromium and the system
 # libraries it needs. Installing those on a plain node image is the single
 # fiddliest part of deploying anything that drives a headless browser.
-FROM mcr.microsoft.com/playwright:v1.57.0-noble
+#
+# This tag MUST match the playwright version pinned in package.json exactly.
+# The image ships the browser builds for its own release, and Playwright looks
+# for a build number tied to the library version — a mismatch fails at
+# browserType.launch() with "Executable doesn't exist at
+# /ms-playwright/chromium_headless_shell-<n>", long after the image builds
+# cleanly. package.json pins the exact version for this reason.
+FROM mcr.microsoft.com/playwright:v1.64.1-noble
 
 ENV NODE_ENV=production \
     PORT=3000 \
