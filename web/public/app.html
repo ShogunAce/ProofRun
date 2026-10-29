@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProofRun — console</title>
+<meta name="description" content="The ProofRun console: morning brief, prospect queue, live run stream, proof, approval and memory.">
+<meta name="theme-color" content="#06070a">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/tokens.css">
+<link rel="stylesheet" href="/app.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='9' fill='%235ad1a0'/></svg>">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <!-- The mark is the way back to the landing page; the console is a
+         destination you arrive at, so it needs a door out. -->
+    <a class="brand" href="/">
+      <div class="mark"><i></i> ProofRun</div>
+      <div class="sub">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 2.5 3.5 6 7 9.5"/></svg>
+        back to overview
+      </div>
+    </a>
+
+    <nav class="screens" id="nav" aria-label="Screens">
+      <a href="#/brief">Morning Brief</a>
+      <a href="#/queue">Queue <span class="count" data-count="queue">0</span></a>
+      <a href="#/run">Live Run</a>
+      <a href="#/proof">Proof</a>
+      <a href="#/approve">Approve <span class="count" data-count="approve">0</span></a>
+      <a href="#/memory">Memory</a>
+    </nav>
+
+    <div class="foot">
+      <button class="primary" id="run-now">Run now</button>
+      <div class="status" id="mode-note">loading…</div>
+    </div>
+  </aside>
+
+  <main id="view">
+    <div class="empty"><div class="big">Loading ProofRun…</div></div>
+  </main>
+</div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

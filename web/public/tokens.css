@@ -1,0 +1,150 @@
+/* ---------------------------------------------------------------------------
+   ProofRun — design tokens
+   Shared by the landing page (landing.css) and the app (app.css).
+
+   The identity is unchanged in principle: a dark void, chrome surfaces, one
+   accent, and colour that encodes measurable values rather than mood. What
+   changed is the execution — a real type scale, concentric radii, diffused
+   ambient depth instead of hard shadows, and motion that carries mass.
+
+   Rule that survives from the first version and still governs everything:
+   --pass / --fail / --skip / --warn describe check outcomes ONLY. Never
+   decorate with them.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* --- surface: void -> chrome ------------------------------------------ */
+  --void: #06070a;
+  --void-deep: #030406;
+  --surface-1: #0e1014;
+  --surface-2: #14171c;
+  --surface-3: #1b1f26;
+  --surface-4: #232832;
+
+  /* hairlines. Never a flat grey border: these carry alpha so they read as
+     light catching an edge rather than a drawn line. */
+  --line: rgba(255, 255, 255, 0.07);
+  --line-bright: rgba(255, 255, 255, 0.12);
+  --line-hot: rgba(255, 255, 255, 0.2);
+
+  /* --- text ------------------------------------------------------------- */
+  /* The ramp is pinned to the product's own standard: every step clears WCAG AA
+     (4.5:1 for normal text) against both the void and the card surfaces. The
+     dimmer greys this replaced measured 4.1:1 and 2.5:1 — a landing page that
+     advertises a contrast audit cannot fail one. */
+  --text: #f2f4f7;
+  --text-2: #a8b0bd;
+  --text-3: #8b94a3;
+  --text-4: #78818f;
+
+  /* --- the one accent --------------------------------------------------- */
+  --accent: #5ad1a0;
+  --accent-hot: #7bebbd;
+  --accent-dim: #2d7a5e;
+  --accent-deep: #0f3328;
+  --accent-ink: #042019;
+  --accent-wash: rgba(90, 209, 160, 0.09);
+  --accent-glow: rgba(90, 209, 160, 0.22);
+
+  /* Atmosphere only — background mesh orbs. Not semantic, never on content. */
+  --orb-teal: rgba(45, 160, 170, 0.16);
+  --orb-violet: rgba(109, 94, 214, 0.13);
+
+  /* --- measurement colours: check outcomes, nothing else ---------------- */
+  --pass: #5ad1a0;
+  --fail: #f2766b;
+  --skip: #7b8494;
+  --warn: #e0b341;
+
+  /* --- radii: concentric. An inner core is always outer minus its pad. --- */
+  --r-xs: 4px;
+  --r-sm: 7px;
+  --r-md: 11px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-2xl: 30px;
+  --r-pill: 999px;
+
+  /* --- type ------------------------------------------------------------- */
+  --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "Instrument Serif", "Iowan Old Style", Palatino, Georgia, serif;
+  --mono: "Geist Mono", ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+
+  /* fluid display scale */
+  --t-display: clamp(2.75rem, 1.1rem + 5.6vw, 5.5rem);
+  --t-h1: clamp(2rem, 1.1rem + 3.1vw, 3.25rem);
+  --t-h2: clamp(1.5rem, 1.05rem + 1.6vw, 2.125rem);
+  --t-h3: clamp(1.125rem, 0.98rem + 0.5vw, 1.3125rem);
+
+  /* --- depth: diffused ambient light, never a hard drop ----------------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px -2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.28), 0 18px 44px -12px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 4px 10px rgba(0, 0, 0, 0.3), 0 40px 90px -24px rgba(0, 0, 0, 0.7);
+  --inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --inset-core: inset 0 1px 1px rgba(255, 255, 255, 0.07);
+
+  /* --- motion: mass and spring, never linear --------------------------- */
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-back: cubic-bezier(0.5, 0, 0.75, 0);
+  --dur-fast: 180ms;
+  --dur-mid: 420ms;
+  --dur-slow: 760ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body { overflow-x: hidden; }
+
+h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.022em; margin: 0; text-wrap: balance; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img, svg, video { max-width: 100%; }
+
+::selection { background: var(--accent-glow); color: #fff; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* Film grain. Fixed and pointer-events:none so it never repaints on scroll. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Motion is for real state changes. If the reader does not want it, it goes —
+   including the scroll reveals, which must resolve to their final state and
+   not leave content invisible. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; filter: none !important; }
+}

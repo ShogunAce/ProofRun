@@ -49,8 +49,9 @@ npm run check:models   # probes every configured model at every endpoint
 npm start              # http://localhost:3000
 ```
 
-Open the app and press **Run now**. The whole loop takes about two minutes and
-streams every tool call, model call and retry to the Live Run screen.
+`/` is the landing page; the console lives at **`/app`**. Open it and press
+**Run now**. The whole loop takes about two minutes and streams every tool call,
+model call and retry to the Live Run screen.
 
 `npm run check:models` is worth running first — it lists the Nemotron models
 your key can actually see per region, prints the routing table, and makes a live
